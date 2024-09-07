@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -59,7 +59,7 @@ export default function ActorsForm() {
                 >
                   <Input
                     value={creator}
-                    onChange={(e: any) =>
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
                       handleCreatorChange(index, e.target.value)
                     }
                     placeholder="Creator name"

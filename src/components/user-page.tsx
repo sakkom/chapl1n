@@ -12,25 +12,30 @@ import Link from "next/link";
 export function UserPage() {
   const [layout, setLayout] = useState("single");
 
-  const labels = [
+  interface Item {
+    image: string;
+    name: string;
+  }
+
+  const labels: Item[] = [
     { image: "/radar.jpg", name: "Label1" },
     { image: "/radar.jpg", name: "Label2" },
     { image: "/radar.jpg", name: "Label3" },
   ];
 
-  const histories = [
+  const histories: Item[] = [
     { image: "/radar.jpg", name: "Film1" },
     { image: "/radar.jpg", name: "Film2" },
     { image: "/radar.jpg", name: "Film3" },
   ];
 
-  const renderItems = (items: any) => (
+  const renderItems = (items: Item[]) => (
     <div
       className={`grid gap-4 ${
         layout === "double" ? "grid-cols-2" : "grid-cols-1"
       }`}
     >
-      {items.map((item: any, index: any) => (
+      {items.map((item, index) => (
         <Card key={index}>
           <Link href={`/label`}>
             <CardContent

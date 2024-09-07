@@ -1,23 +1,44 @@
 "use client";
 
 import Script from "next/script";
-
 import { useEffect, useRef } from "react";
 
 declare global {
   interface Window {
-    VANTA: any;
+    VANTA: {
+      FOG: (options: VantaOptions) => VantaEffect;
+    };
   }
+}
+
+interface VantaOptions {
+  el: HTMLElement | null;
+  mouseControls: boolean;
+  touchControls: boolean;
+  gyroControls: boolean;
+  minHeight: number;
+  minWidth: number;
+  highlightColor: number;
+  midtoneColor: number;
+  lowlightColor: number;
+  baseColor: number;
+  blurFactor: number;
+  speed: number;
+  zoom: number;
+}
+
+interface VantaEffect {
+  destroy: () => void;
 }
 
 export const useVanta = () => {
   const bodyRef = useRef<HTMLDivElement>(null);
-  let vantaEffect: any = null;
+  const vantaEffect = useRef<VantaEffect | null>(null);
 
   useEffect(() => {
     const handleLoad = () => {
       if (window.VANTA) {
-        vantaEffect = window.VANTA.FOG({
+        vantaEffect.current = window.VANTA.FOG({
           el: bodyRef.current,
           mouseControls: true,
           touchControls: true,
@@ -32,7 +53,6 @@ export const useVanta = () => {
           speed: 1.10,
           zoom: 0.50
         });
-
       }
     };
 
@@ -43,7 +63,7 @@ export const useVanta = () => {
         window.addEventListener("load", handleLoad);
         return () => {
           window.removeEventListener("load", handleLoad);
-          if (vantaEffect) vantaEffect.destroy();
+          if (vantaEffect.current) vantaEffect.current.destroy();
         };
       }
     }

@@ -12,19 +12,24 @@ import Link from "next/link";
 export function LabelPage() {
   const [layout, setLayout] = useState("single");
 
-  const films = [
+  interface Film {
+    image: string;
+    name: string;
+  }
+
+  const films: Film[] = [
     { image: "/radar.jpg", name: "Film1" },
     { image: "/radar.jpg", name: "Film2" },
     { image: "/radar.jpg", name: "Film3" },
   ];
 
-  const renderItems = (items: any) => (
+  const renderItems = (items: Film[]) => (
     <div
       className={`grid gap-4 ${
         layout === "double" ? "grid-cols-2" : "grid-cols-1"
       }`}
     >
-      {items.map((item: any, index: any) => (
+      {items.map((item, index) => (
         <Card key={index}>
           <CardContent
             className={`p-4 ${

@@ -5,6 +5,7 @@ import { IDL, ChaplinProtocol } from "./idl";
 import { Program } from "@coral-xyz/anchor";
 // import { AnchorWallet } from "@solana/wallet-adapter-react";
 import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
+import { AnchorWallet } from "@solana/wallet-adapter-react";
 
 const USERSEED = "user-profile";
 const LABELSEED = "label";
@@ -14,10 +15,11 @@ export const programId = new anchor.web3.PublicKey(
 );
 
 const connection = new web3.Connection(
-  "https://api.devnet.solana.com",
+  // "https://api.devnet.solana.com",
+  "https://devnet-rpc.shyft.to?api_key=aEoNRy0ZFiWQX_Lv"
 );
 
-export function setProgram(wallet: NodeWallet) {
+export function setProgram(wallet: NodeWallet | AnchorWallet) {
   try {
     console.log("Setting provider...");
     const provider = new anchor.AnchorProvider(connection, wallet, {
@@ -109,5 +111,32 @@ export async function createLabel(
       .rpc();
   } catch (err) {
     console.error(err);
+  }
+}
+
+//fetch
+export async function fetchUser(wallet: AnchorWallet, authority: web3.PublicKey) {
+  try {
+    const program = setProgram(wallet);
+    if (!USERSEED) throw new Error("USERSEEDが環境変数に設定されていません");
+
+    const [userPda] = web3.PublicKey.findProgramAddressSync(
+      [Buffer.from(USERSEED), authority.toBytes()],
+      program.programId,
+    );
+
+    console.log("ユーザーPDA:", userPda.toString());
+    console.log(program.account);
+
+    const userAccount = await (program.account as any).userProfile.fetch(userPda);
+    console.log("ユーザープロフィールアカウントデータ:", (userAccount as any).name);
+    
+    return {
+      userAccount: userAccount as any,
+      userPda: userPda
+    };
+  } catch (error) {
+    console.error("ユーザーの取得中にエラーが発生しました:", error);
+    throw error;
   }
 }

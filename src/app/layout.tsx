@@ -4,6 +4,7 @@ import { BottomBar } from "@/components/bottom-bar";
 import { Poppins } from "next/font/google";
 import { BackGround } from "@/components/background";
 import TopBar from "@/components/top-bar";
+import { AppWalletProvider } from "@/AppWalletProvider";
 
 const poppins = Poppins({ weight: "600", subsets: ["latin"] });
 
@@ -19,12 +20,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${poppins.className} `}>
-        <BackGround />
-        <TopBar />
+      <AppWalletProvider>
+        <body className={`${poppins.className} `}>
+          <BackGround />
+          <TopBar />
           {children}
           <BottomBar />
-      </body>
+        </body>
+      </AppWalletProvider>
     </html>
   );
 }

@@ -3,6 +3,7 @@
 import * as React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
 export default function TopBar() {
   const [isOpen, setIsOpen] = React.useState(false);
@@ -45,6 +46,7 @@ export default function TopBar() {
           </motion.div>
         )}
       </AnimatePresence>
+      <WalletMultiButton style={{}} />
     </div>
   );
 }

@@ -16,7 +16,8 @@ export const programId = new anchor.web3.PublicKey(
 
 const connection = new web3.Connection(
   // "https://api.devnet.solana.com",
-  "https://devnet-rpc.shyft.to?api_key=aEoNRy0ZFiWQX_Lv"
+  // "https://devnet-rpc.shyft.to?api_key=aEoNRy0ZFiWQX_Lv"
+  "https://devnet.helius-rpc.com/?api-key=1210bef3-8110-4b7f-af32-f30426f47781"
 );
 
 export function setProgram(wallet: NodeWallet | AnchorWallet) {
@@ -90,6 +91,7 @@ export async function createLabel(
   bubblegum_tree: web3.PublicKey //pda?
 ) {
   try {
+
     const program = setProgram(wallet);
     if (!USERSEED) throw new Error("not USERSEED in env");
 

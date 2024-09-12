@@ -9,7 +9,7 @@ import { Idl } from "@coral-xyz/anchor";
 
 
 export const IDL: Idl = {
-  "address": "6ZGctGvY2YzjwJt5NB2rFsHueGC11ucmJo9chALDqxDX",
+  "address": "DbNKdE3k31kCUTgNCKgiMD3CHn4MrWiuPZ2Ey4nHrPuF",
   "metadata": {
     "name": "chaplinProtocol",
     "version": "0.1.0",
@@ -17,6 +17,44 @@ export const IDL: Idl = {
     "description": "Created with Anchor"
   },
   "instructions": [
+    {
+      "name": "connectFilmToLabel",
+      "discriminator": [
+        110,
+        211,
+        169,
+        38,
+        176,
+        232,
+        78,
+        50
+      ],
+      "accounts": [
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "label",
+          "writable": true
+        },
+        {
+          "name": "film",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "label",
+          "type": "pubkey"
+        },
+        {
+          "name": "filmPda",
+          "type": "pubkey"
+        }
+      ]
+    },
     {
       "name": "connectLabelToUser",
       "discriminator": [
@@ -44,6 +82,72 @@ export const IDL: Idl = {
         {
           "name": "label",
           "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "createFilm",
+      "discriminator": [
+        28,
+        13,
+        137,
+        220,
+        225,
+        114,
+        22,
+        2
+      ],
+      "accounts": [
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "collectionMint"
+        },
+        {
+          "name": "film",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  102,
+                  105,
+                  108,
+                  109
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "collectionMint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "collectionMint",
+          "type": "pubkey"
+        },
+        {
+          "name": "label",
+          "type": "pubkey"
+        },
+        {
+          "name": "actor",
+          "type": {
+            "defined": {
+              "name": "actor"
+            }
+          }
         }
       ]
     },
@@ -223,6 +327,19 @@ export const IDL: Idl = {
   ],
   "accounts": [
     {
+      "name": "film",
+      "discriminator": [
+        64,
+        83,
+        51,
+        112,
+        106,
+        117,
+        158,
+        226
+      ]
+    },
+    {
       "name": "label",
       "discriminator": [
         81,
@@ -251,6 +368,50 @@ export const IDL: Idl = {
   ],
   "types": [
     {
+      "name": "actor",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "creator",
+            "type": {
+              "vec": "pubkey"
+            }
+          },
+          {
+            "name": "coCreator",
+            "type": {
+              "vec": "pubkey"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "film",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "collectionMint",
+            "type": "pubkey"
+          },
+          {
+            "name": "label",
+            "type": "pubkey"
+          },
+          {
+            "name": "actor",
+            "type": {
+              "defined": {
+                "name": "actor"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "label",
       "type": {
         "kind": "struct",
@@ -262,6 +423,12 @@ export const IDL: Idl = {
           {
             "name": "bubblegumTree",
             "type": "pubkey"
+          },
+          {
+            "name": "films",
+            "type": {
+              "vec": "pubkey"
+            }
           }
         ]
       }
@@ -286,6 +453,7 @@ export const IDL: Idl = {
     }
   ]
 };
+
 
 
 

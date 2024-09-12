@@ -1,15 +1,12 @@
-// import { setProgram } from "../../../../../anchorClient";
 import { createUser } from "../../../../../anchorClient";
 import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
 import * as web3 from "@solana/web3.js";
 import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
 
-
-export async function POST(reqest: Request) {
+export async function POST(request: Request) {
   try {
-    const formData = await reqest.formData();
-    const authority = formData.get("authority");
-    const name = formData.get("name");
+    const data = await request.json();
+    const { authority, name } = data;
 
     if (!authority || typeof authority !== "string") {
       throw new Error("権限が無効です");
@@ -24,16 +21,16 @@ export async function POST(reqest: Request) {
     if (!private_key) throw new Error("not a private key");
 
     const keypair = web3.Keypair.fromSecretKey(bs58.decode(private_key));
-    console.log(keypair.publicKey);
+    // console.log("Keypair public key:", keypair.publicKey.toBase58());
     const wallet = new NodeWallet(keypair);
 
     const tx = await createUser(wallet, authority_pubKey, name);
 
     console.log(`https://explorer.solana.com/tx/${tx}?cluster=devnet`);
 
-    return Response.json(tx);
+    return new Response(JSON.stringify(tx), { status: 200 });
   } catch (err) {
-    console.error("not working add harigami collection");
+    console.error("Error in POST /api/user/create-user:", err);
     return new Response("", { status: 400 });
   }
 }

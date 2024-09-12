@@ -22,3 +22,27 @@ export async function postLabel(initialMembers: string[]) {
 
   return response.json();
 }
+
+export async function postUserProfile(authority: string, name: string) {
+  const data = {
+    authority,
+    name
+  };
+
+  const response = await fetch(
+    "http://localhost:3000/api/user/create-user",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
+
+  return response.json();
+}

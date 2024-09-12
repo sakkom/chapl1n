@@ -21,7 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <AppWalletProvider>
-        <body className={`${poppins.className} `}>
+        <body className={`${poppins.className}`} >
           <BackGround />
           <TopBar />
           {children}

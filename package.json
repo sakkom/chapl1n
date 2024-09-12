@@ -34,6 +34,7 @@
     "@sqds/sdk": "^2.0.4",
     "@types/bn.js": "^5.1.5",
     "bn.js": "^5.2.1",
+    "boring-avatars": "^1.11.1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "framer-motion": "^11.5.4",

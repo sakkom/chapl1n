@@ -27,10 +27,10 @@ export function setProgram(wallet: NodeWallet | AnchorWallet) {
       commitment: "confirmed",
     });
     anchor.setProvider(provider);
-    console.log(provider);
+    // console.log(provider);
 
     const program = new Program<ChaplinProtocol>(IDL, provider);
-    console.log("Program created:", program);
+    // console.log("Program created:", program);
 
     return program;
   } catch (err) {
@@ -57,7 +57,7 @@ export async function createUser(
   try {
     const provider = createProvider(wallet);
     const program = new Program<ChaplinProtocol>(IDL, provider);
-    console.log("Program: ", program);
+
     if (!USERSEED) throw new Error("not USERSEED in env");
 
     const [userPda] = web3.PublicKey.findProgramAddressSync(
@@ -101,12 +101,50 @@ export async function createLabel(
     );
     console.log("user pda account", labelPda.toString());
 
-    return await program.methods
+    const tx = await program.methods
       .createLabel(squad_key, bubblegum_tree)
       .accounts({
         user: wallet.publicKey,
         squadKey: squad_key,
         label: labelPda,
+        systemProgram: anchor.web3.SystemProgram.programId,
+      })
+      .signers([wallet.payer])
+      .rpc();
+
+    return { tx, labelPda }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+export async function connectLabel(
+  wallet: NodeWallet,
+  member: web3.PublicKey,
+  labelPda: web3.PublicKey,
+) {
+  try {
+
+    const program = setProgram(wallet);
+    if (!USERSEED) throw new Error("not USERSEED in env");
+
+    const [userPda] = web3.PublicKey.findProgramAddressSync(
+      [Buffer.from(USERSEED), member.toBuffer()],
+      program.programId,
+    );
+    console.log("foo", userPda);///9wDEo3MV4stNrFVad2FWCqRs8sDMbP6MuM23yZA3UZy7, 
+
+    // user_profile アカウントが初期化されているか確認
+    const userAccountInfo = await connection.getAccountInfo(userPda);
+    if (!userAccountInfo) {
+      throw new Error(`User profile account for member ${member.toString()} is not initialized`);
+    }
+
+    return await program.methods
+      .connectLabelToUser(labelPda)
+      .accounts({
+        user: wallet.publicKey,
+        userProfile: userPda,
         systemProgram: anchor.web3.SystemProgram.programId,
       })
       .signers([wallet.payer])
@@ -132,7 +170,7 @@ export async function fetchUser(wallet: AnchorWallet, authority: web3.PublicKey)
 
     const userAccount = await (program.account as any).userProfile.fetch(userPda);
     console.log("ユーザープロフィールアカウントデータ:", (userAccount as any).name);
-    
+
     return {
       userAccount: userAccount as any,
       userPda: userPda

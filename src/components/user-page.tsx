@@ -191,8 +191,8 @@ export default function UserPage() {
   useEffect(() => {
     const fetchUserAccount = async () => {
       if (wallet) {
-        const mockAddress = new web3.PublicKey("4Pv8xnSwJ4ZZ8yeo2rmNfBznLrGZojic9RuXi8d1Li71");
-        const account = await fetchUser(wallet, mockAddress);
+        const authority = wallet.publicKey
+        const account = await fetchUser(wallet, authority);
         setUserAccount(account);
       }
     };

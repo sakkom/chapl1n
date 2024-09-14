@@ -7,6 +7,7 @@ import VerticalUserCard from "@/components/user/vertical-user-card"
 import { useUserAccount } from "@/hooks/useUserAccount"
 import { useAnchorWallet } from "@solana/wallet-adapter-react"
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui"
+import Link from "next/link"
 
 export default function EnterPage() {
   const wallet = useAnchorWallet()
@@ -108,7 +109,11 @@ export default function EnterPage() {
             </div>
           </div>
           {wallet && userAccount && (
-            <Button className="w-full text-lg py-6 bg-[#14F195] hover:bg-[#0fd180] text-black">Enter 🍿</Button>
+            <div>
+            <Link href={`/`} className="">
+              <Button className="w-full text-lg py-6 bg-[#14F195] hover:bg-[#0fd180] text-black">🍿🍿🍿 Enter 🍿🍿🍿</Button>
+            </Link>
+            </div>
           )}
           {wallet && !userAccount && (
             <Button className="w-full text-lg py-6 bg-[#14F195] hover:bg-[#0fd180] text-black opacity-50 cursor-not-allowed" disabled>

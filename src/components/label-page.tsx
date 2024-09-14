@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -8,9 +8,56 @@ import { Button } from "@/components/ui/button";
 import { LayoutGrid, LayoutList, Plus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { fetchLabel } from "../../anchorClient";
+import * as web3 from "@solana/web3.js";
+import { AnchorWallet } from "@solana/wallet-adapter-react";
+import { filterNodeWallet } from "@/lib/utils";
 
-export function LabelPage() {
+interface LabelPageProps {
+  wallet: AnchorWallet;
+  labelPda: web3.PublicKey;
+}
+
+interface LabelAccountData {
+  squadKey: web3.PublicKey;
+  bubblegumTree: web3.PublicKey;
+  films: web3.PublicKey[];
+}
+
+export function LabelPage({ wallet, labelPda }: LabelPageProps) {
   const [layout, setLayout] = useState("single");
+  const [labelData, setLabelData] = useState<LabelAccountData | null>(null);
+  const [member, setMember] = useState<string[]>([]);
+
+  useEffect(() => {
+    async function getLabelData() {
+      const data = await fetchLabel(wallet, labelPda);
+      console.log(data);
+      setLabelData(data);
+    }
+    getLabelData();
+  }, [labelPda, wallet]);
+
+  useEffect(() => {
+    async function fetchSquadData() {
+      if (labelData?.squadKey) {
+        try {
+          const response = await fetch(
+            `/api/label/${labelData.squadKey.toString()}`
+          );
+          const data = await response.json();
+          // console.log(data);
+          const msState = data.multisigAccount;
+          console.log(msState)
+          const filteredMembers = filterNodeWallet(msState.keys);
+          setMember(filteredMembers);
+        } catch (error) {
+          console.error("Failed to fetch squad data:", error);
+        }
+      }
+    }
+    fetchSquadData();
+  }, [labelData]);
 
   interface Film {
     image: string;
@@ -109,12 +156,6 @@ export function LabelPage() {
         </TabsList>
         <TabsContent value="film">
           <div className="mb-4 flex justify-between items-center">
-            <Link href={`/create-film`}>
-              <Button variant="default" size="sm" className="flex items-center">
-                <Plus className="h-4 w-4 mr-2" />
-                New Creation
-              </Button>
-            </Link>
             <div className="flex space-x-2">
               <Button
                 variant={layout === "single" ? "default" : "ghost"}
@@ -136,7 +177,29 @@ export function LabelPage() {
           </div>
           {renderItems(films)}
         </TabsContent>
-        <TabsContent value="member"></TabsContent>
+        <TabsContent value="member">
+          {member.length > 0 ? (
+            <div>
+              {member.map((member, index) => (
+                <div key={index}>{member.toString()}</div>
+              ))}
+              {member.includes(wallet.publicKey.toString()) && (
+                <Link href={`/create-film`}>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    className="flex items-center mt-2"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    New Film
+                  </Button>
+                </Link>
+              )}
+            </div>
+          ) : (
+            <div>No members available</div>
+          )}
+        </TabsContent>
         <TabsContent value="treasury"></TabsContent>
       </Tabs>
     </div>

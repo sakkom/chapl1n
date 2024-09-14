@@ -1,5 +1,3 @@
-
-
 export async function postLabel(initialMembers: string[]) {
   const data = {
     initialMembers: initialMembers,
@@ -37,6 +35,25 @@ export async function postUserProfile(authority: string, name: string) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
+
+  return response.json();
+}
+
+export async function postFilm(flyer: File) {
+  const formData = new FormData();
+  formData.append('flyer', flyer);
+
+  const response = await fetch(
+    "http://localhost:3000/api/film",
+    {
+      method: "POST",
+      body: formData,
     },
   );
 

@@ -8,6 +8,8 @@ export async function POST(request: Request) {
     const data = await request.json();
     const { authority, name } = data;
 
+    console.log(authority, name);
+
     if (!authority || typeof authority !== "string") {
       throw new Error("権限が無効です");
     }

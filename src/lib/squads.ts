@@ -1,7 +1,9 @@
 import * as web3 from "@solana/web3.js";
 import { getKeypairFromEnvironment } from "@solana-developers/helpers";
-import Squads, { DEFAULT_MULTISIG_PROGRAM_ID,
-  getAuthorityPDA,} from "@sqds/sdk";
+import Squads, {
+  DEFAULT_MULTISIG_PROGRAM_ID,
+  getAuthorityPDA,
+} from "@sqds/sdk";
 import NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
 import BN from "bn.js";
 
@@ -47,9 +49,37 @@ export const createMultisig = async (initialMembers: web3.PublicKey[]) => {
       initialMembers,
     );
 
-    return  multisigAccount ;
+    return multisigAccount;
   } catch (error) {
     console.error("Failed to create multisig:", error);
     throw error;
   }
 };
+
+export const getMultisig = async (multisigPda: web3.PublicKey) => {
+  try {
+    const squads = initializeSquadsSDK();
+
+    const multisigAccount = await squads.getMultisig(multisigPda);
+
+    return multisigAccount;
+  } catch (error) {
+    console.error("Failed to get multisig:", error);
+    throw error;
+  }
+};
+
+export async function getTreasury(multisigPda: web3.PublicKey) {
+  try {
+    const [vault] = getAuthorityPDA(
+      multisigPda,
+      new BN(1),
+      DEFAULT_MULTISIG_PROGRAM_ID,
+    );
+
+    return vault;
+
+  } catch (e) {
+    console.error(e)
+  }
+}

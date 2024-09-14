@@ -1,4 +1,4 @@
-import { createBubblegumTree } from "@/lib/bubblegum";
+import { createBubblegumTree } from "@/lib/metaplex";
 import { createMultisig } from "@/lib/squads";
 import * as web3 from "@solana/web3.js";
 import { connectLabel, createLabel } from "../../../../../anchorClient";
@@ -42,7 +42,7 @@ export async function POST(request: Request) {
       const filteredMembers_pubKey = initialMembers_pubKey.filter(
         (pubKey) => !pubKey.equals(wallet.publicKey)
       );
-      
+
       for (const member of filteredMembers_pubKey) {
         if (labelPda) {
           console.log(`Processing member: ${member.toString()}`);

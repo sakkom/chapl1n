@@ -10,6 +10,11 @@ import { AnchorWallet } from "@solana/wallet-adapter-react";
 const USERSEED = "user-profile";
 const LABELSEED = "label";
 
+export type Actor = {
+  creator: web3.PublicKey[],
+  coCreator: web3.PublicKey[],
+}
+
 export const programId = new anchor.web3.PublicKey(
   "6ZGctGvY2YzjwJt5NB2rFsHueGC11ucmJo9chALDqxDX",
 );
@@ -118,6 +123,59 @@ export async function createLabel(
   }
 }
 
+export async function createFilm(
+  wallet: NodeWallet,
+  msPda: web3.PublicKey,
+  collectionMint: web3.PublicKey,
+  actor: Actor
+) {
+  try {
+
+    const program = setProgram(wallet);
+    if (!USERSEED) throw new Error("not USERSEED in env");
+
+    const [labelPda] = web3.PublicKey.findProgramAddressSync(
+      [Buffer.from(LABELSEED), msPda.toBytes()],
+      program.programId,
+    );
+
+    const [filmPda] = web3.PublicKey.findProgramAddressSync(
+      [Buffer.from("film"), collectionMint.toBuffer()],
+      program.programId
+    );
+
+    console.log("user pda account", labelPda.toString());
+
+    const instruction1 = await program.methods
+      .createFilm(collectionMint, labelPda, actor)
+      .accounts({
+        user: wallet.publicKey,
+        collectionMint: collectionMint,
+        film: filmPda,
+        label: labelPda,
+        systemProgram: anchor.web3.SystemProgram.programId,
+      })
+      .instruction()
+
+      const instruction2 = await program.methods
+      .connectFilmToLabel(labelPda, filmPda)
+      .accounts({
+        user: wallet.publicKey,
+        film: filmPda,
+        label: labelPda,
+        systemProgram: anchor.web3.SystemProgram.programId,
+      })
+      .instruction()
+
+      const transaction = new web3.Transaction().add(instruction1, instruction2);
+      const signature = await connection.sendTransaction(transaction, [wallet.payer]);
+
+    return signature;
+  } catch (err) {
+    console.error(err);
+  }
+}
+
 export async function connectLabel(
   wallet: NodeWallet,
   member: web3.PublicKey,
@@ -175,6 +233,20 @@ export async function fetchUser(wallet: AnchorWallet, authority: web3.PublicKey)
       userAccount: userAccount as any,
       userPda: userPda
     };
+  } catch (error) {
+    console.error("ユーザーの取得中にエラーが発生しました:", error);
+    throw error;
+  }
+}
+
+export async function fetchLabel(wallet: AnchorWallet, labelPda: web3.PublicKey) {
+  try {
+    const program = setProgram(wallet);
+    if (!USERSEED) throw new Error("USERSEEDが環境変数に設定されていません");
+
+    const labelAccount = await (program.account as any).label.fetch(labelPda);
+
+    return labelAccount;
   } catch (error) {
     console.error("ユーザーの取得中にエラーが発生しました:", error);
     throw error;

@@ -13,8 +13,8 @@ export default function TopBar() {
   };
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50">
-      <div className="bg-background border-b">
+    <div className="fixed top-0 left-0 right-0 z-50 flex justify-center">
+      <div className="bg-background border-b" style={{ width: '500px' }}>
         <div className="container mx-auto px-4 py-2 flex justify-center items-center">
           <button
             className="text-lg font-bold hover:text-primary transition-colors"
@@ -35,6 +35,7 @@ export default function TopBar() {
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3 }}
             className="bg-black bg-opacity-50 border-b overflow-hidden"
+            style={{ width: '500px', position: 'absolute', top: '100%' }}
           >
             <div className="container mx-auto px-4 py-8">
               <Link href={`/create-label`} onClick={handleLinkClick}>

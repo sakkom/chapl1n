@@ -2,8 +2,6 @@ import { ViewCard } from "@/components/view-card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 
-
-
 export default function Component() {
   return (
     <div className="w-full flex justify-center items-center h-screen">

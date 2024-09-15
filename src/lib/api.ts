@@ -1,3 +1,5 @@
+import { ActorForm } from "@/components/actors-form";
+
 export async function postLabel(initialMembers: string[]) {
   const data = {
     initialMembers: initialMembers,
@@ -45,9 +47,12 @@ export async function postUserProfile(authority: string, name: string) {
   return response.json();
 }
 
-export async function postFilm(flyer: File) {
+export async function postFilm(flyer: File, labelPda: string, msPda: string, actor: ActorForm) { 
   const formData = new FormData();
   formData.append('flyer', flyer);
+  formData.append('labelPda', labelPda);
+  formData.append('msPda', msPda);
+  formData.append('actor', JSON.stringify(actor));
 
   const response = await fetch(
     "http://localhost:3000/api/film",

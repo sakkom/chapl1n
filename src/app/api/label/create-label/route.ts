@@ -22,13 +22,14 @@ export async function POST(request: Request) {
       }
     });
 
-    console.log(initialMembers);
-    console.log(initialMembers_pubKey);
+    // console.log(initialMembers);
+    // console.log(initialMembers_pubKey);
 
     const multisigAccount = await createMultisig(initialMembers_pubKey); //変数のmemberにNodeWalletがついかされる。why?
     const squadId = multisigAccount.publicKey;
 
     const treeId = await createBubblegumTree();
+    console.log("tree success", treeId)
 
     let tx
     if (squadId && treeId) {

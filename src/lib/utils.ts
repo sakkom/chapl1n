@@ -1,5 +1,15 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
+import * as web3 from "@solana/web3.js";
+import { fetchAllDigitalAssetByOwner, fetchDigitalAsset } from '@metaplex-foundation/mpl-token-metadata'
+import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
+import {  publicKey } from '@metaplex-foundation/umi';
+
+export type Flyer = {
+  collectionMint: web3.PublicKey,
+  name: string,
+  image: string
+}
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -21,3 +31,48 @@ export function filterNodeWallet(keys: string[]): string[] {
   return filteredKeys;
 }
 
+//client
+export async function fetchFlyer(mint: web3.PublicKey) {
+  try {
+    
+  const umi = createUmi('https://devnet.helius-rpc.com/?api-key=1210bef3-8110-4b7f-af32-f30426f47781')
+    const data = await fetchDigitalAsset(umi, publicKey(mint))
+    const uri = data.metadata.uri.replace("https://arweave.net", "https://devnet.irys.xyz");
+    const name = data.metadata.name;
+
+    const result = await fetch(uri);
+    const uriData = await result.json(); 
+
+    const flyer: Flyer = {
+      collectionMint: mint,
+      name: name,
+      image: uriData.image.replace("https://arweave.net", "https://devnet.irys.xyz")
+    }
+
+    return flyer
+  } catch(e) {
+    return {
+      collectionMint: mint,
+      name: "Unknown",
+      image: ""
+    };
+  }
+}
+
+export async function fetchMasterCopy(vault: web3.PublicKey) {
+  try {
+    
+  const umi = createUmi('https://devnet.helius-rpc.com/?api-key=1210bef3-8110-4b7f-af32-f30426f47781')
+    const data = await fetchAllDigitalAssetByOwner(umi, publicKey(vault))
+
+    const masterCopies: string[] = data.map(asset => asset.publicKey);
+
+    return masterCopies;
+  } catch(e) {
+    // return {
+    //   collectionMint: mint,
+    //   name: "Unknown",
+    //   image: ""
+    // };
+  }
+}

@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { BottomBar } from "@/components/bottom-bar";
 import { Poppins } from "next/font/google";
 import { BackGround } from "@/components/background";
-import TopBar from "@/components/top-bar";
 import { AppWalletProvider } from "@/AppWalletProvider";
 
 const poppins = Poppins({ weight: "600", subsets: ["latin"] });
@@ -23,9 +21,7 @@ export default function RootLayout({
       <AppWalletProvider>
         <body className={`${poppins.className}`} >
           <BackGround />
-          <TopBar />
           {children}
-          <BottomBar />
         </body>
       </AppWalletProvider>
     </html>

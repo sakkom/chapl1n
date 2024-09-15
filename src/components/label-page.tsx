@@ -6,12 +6,16 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { LayoutGrid, LayoutList, Plus } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
-import { fetchLabel } from "../../anchorClient";
+import { Actor, fetchFilm, fetchLabel } from "../../anchorClient";
 import * as web3 from "@solana/web3.js";
 import { AnchorWallet } from "@solana/wallet-adapter-react";
-import { filterNodeWallet } from "@/lib/utils";
+import { fetchFlyer, fetchMasterCopy, filterNodeWallet, Flyer } from "@/lib/utils";
+import {
+  DEFAULT_MULTISIG_PROGRAM_ID,
+  getAuthorityPDA,
+} from "@sqds/sdk";
+import { BN } from "@project-serum/anchor"; // 追加
 
 interface LabelPageProps {
   wallet: AnchorWallet;
@@ -24,10 +28,21 @@ interface LabelAccountData {
   films: web3.PublicKey[];
 }
 
+interface FilmAccountData {
+  collectionMint: web3.PublicKey,
+  label: web3.PublicKey,
+  actor: Actor,
+}
+
 export function LabelPage({ wallet, labelPda }: LabelPageProps) {
   const [layout, setLayout] = useState("single");
   const [labelData, setLabelData] = useState<LabelAccountData | null>(null);
   const [member, setMember] = useState<string[]>([]);
+  const [filmDatas, setFilmDatas] = useState<FilmAccountData[]>([]);
+  const [flyers, setFlyers] = useState<Flyer[] | null>([]);
+  const [vault, setVault] = useState<web3.PublicKey>();
+  const [masterCopys, setMasterCopys] = useState<string[]>([]);  
+
 
   useEffect(() => {
     async function getLabelData() {
@@ -59,18 +74,65 @@ export function LabelPage({ wallet, labelPda }: LabelPageProps) {
     fetchSquadData();
   }, [labelData]);
 
-  interface Film {
-    image: string;
-    name: string;
-  }
+  useEffect(() => {
+    async function fetchFilms() {
+      if (labelData?.films) {
+        try {
+          const filmDataPromises = labelData.films.map(filmPda => fetchFilm(wallet, filmPda));
+          const filmsData = await Promise.all(filmDataPromises);
+          console.log(filmsData);
+          setFilmDatas(filmsData);
+        } catch (error) {
+          console.error("フィルムデータの取得中にエラーが発生しました:", error);
+        }
+      }
+    }
+    fetchFilms();
+  }, [labelData, wallet]);
 
-  const films: Film[] = [
-    { image: "/radar.jpg", name: "Film1" },
-    { image: "/radar.jpg", name: "Film2" },
-    { image: "/radar.jpg", name: "Film3" },
-  ];
+  useEffect(() => {
+    async function fetchFlyers() {
+      try {
+        const flyerPromises = filmDatas.map(film => fetchFlyer(film.collectionMint));
+        const flyers = await Promise.all(flyerPromises);
+        setFlyers(flyers);
+      } catch (error) {
+        console.error("フライヤーデータの取得中にエラーが発生しました:", error);
+      }
+    }
+    fetchFlyers();
+  }, [filmDatas]);
 
-  const renderItems = (items: Film[]) => (
+  useEffect(() => {
+    const fetchVault = async () => {
+      if (labelData?.squadKey) {
+        const [vault] = await getAuthorityPDA(
+          labelData.squadKey,
+          new BN(1),
+          DEFAULT_MULTISIG_PROGRAM_ID
+        );
+        setVault(vault);
+      }
+    };
+    fetchVault();
+  }, [labelData]);
+
+  useEffect(() => {
+    async function fetchMaster() {
+      if (vault) {
+        try {
+          const data = await fetchMasterCopy(vault);
+          setMasterCopys(data || []);
+
+        } catch (error) {
+          console.error("マスターコピーの取得中にエラーが発生しました:", error);
+        }
+      }
+    }
+    fetchMaster();
+  }, [vault]);
+
+  const renderItems = (items: Flyer[]) => (
     <div
       className={`grid gap-4 ${
         layout === "double" ? "grid-cols-2" : "grid-cols-1"
@@ -88,7 +150,7 @@ export function LabelPage({ wallet, labelPda }: LabelPageProps) {
                 layout === "single" ? "w-1/3" : "w-full"
               } aspect-square`}
             >
-              <Image
+              <img
                 src={item.image}
                 alt={`${item.name} image`}
                 width={500}
@@ -175,7 +237,7 @@ export function LabelPage({ wallet, labelPda }: LabelPageProps) {
               </Button>
             </div>
           </div>
-          {renderItems(films)}
+          {renderItems(flyers ?? [])}
         </TabsContent>
         <TabsContent value="member">
           {member.length > 0 ? (
@@ -184,7 +246,7 @@ export function LabelPage({ wallet, labelPda }: LabelPageProps) {
                 <div key={index}>{member.toString()}</div>
               ))}
               {member.includes(wallet.publicKey.toString()) && (
-                <Link href={`/create-film`}>
+                <Link href={`/label/new-film/${labelPda}`}>
                   <Button
                     variant="default"
                     size="sm"
@@ -200,7 +262,14 @@ export function LabelPage({ wallet, labelPda }: LabelPageProps) {
             <div>No members available</div>
           )}
         </TabsContent>
-        <TabsContent value="treasury"></TabsContent>
+        <TabsContent value="treasury">
+          <h2>treasury address</h2>
+          <h2>{vault?.toString()}</h2>
+          <h2>owned master copy (collection mint)</h2>
+          {masterCopys.map((copy, index) => (
+            <div key={index}>{copy}</div> // 追加
+          ))}
+        </TabsContent>
       </Tabs>
     </div>
   );

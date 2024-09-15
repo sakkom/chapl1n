@@ -1,13 +1,18 @@
+
+
 import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
 import { createSignerFromKeypair, signerIdentity, generateSigner, createGenericFileFromBrowserFile, percentAmount } from '@metaplex-foundation/umi';
 import { getKeypairFromEnvironment } from "@solana-developers/helpers";
 import { createTree } from '@metaplex-foundation/mpl-bubblegum';
-import { createNft, mplTokenMetadata } from '@metaplex-foundation/mpl-token-metadata'
+import { createNft, mplTokenMetadata,  } from '@metaplex-foundation/mpl-token-metadata'
 import { irysUploader } from "@metaplex-foundation/umi-uploader-irys";
 // import { base58 } from '@metaplex-foundation/umi-serializers';
 
 export const initializeNodeUmi = () => {
-  const umi = createUmi('https://devnet.helius-rpc.com/?api-key=1210bef3-8110-4b7f-af32-f30426f47781')
+  const umi = createUmi(
+    'https://devnet.helius-rpc.com/?api-key=1210bef3-8110-4b7f-af32-f30426f47781'
+    // "https://devnet-rpc.shyft.to?api_key=aEoNRy0ZFiWQX_Lv"
+  )
 
   const web3Keypair = getKeypairFromEnvironment("NODEWALLET_PRIVATE_KEY");
 
@@ -100,3 +105,5 @@ export async function createFlyer(uri: string) {
   }
 
 }
+
+

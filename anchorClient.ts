@@ -125,7 +125,7 @@ export async function createLabel(
 
 export async function createFilm(
   wallet: NodeWallet,
-  msPda: web3.PublicKey,
+  labelPda: web3.PublicKey,
   collectionMint: web3.PublicKey,
   actor: Actor
 ) {
@@ -134,17 +134,12 @@ export async function createFilm(
     const program = setProgram(wallet);
     if (!USERSEED) throw new Error("not USERSEED in env");
 
-    const [labelPda] = web3.PublicKey.findProgramAddressSync(
-      [Buffer.from(LABELSEED), msPda.toBytes()],
-      program.programId,
-    );
-
     const [filmPda] = web3.PublicKey.findProgramAddressSync(
       [Buffer.from("film"), collectionMint.toBuffer()],
       program.programId
     );
 
-    console.log("user pda account", labelPda.toString());
+    console.log("filmPda", filmPda.toString());
 
     const instruction1 = await program.methods
       .createFilm(collectionMint, labelPda, actor)
@@ -167,10 +162,10 @@ export async function createFilm(
       })
       .instruction()
 
-      const transaction = new web3.Transaction().add(instruction1, instruction2);
-      const signature = await connection.sendTransaction(transaction, [wallet.payer]);
+      // const transaction = new web3.Transaction().add(instruction1, instruction2);
+      // const signature = await connection.sendTransaction(transaction, [wallet.payer]);
 
-    return signature;
+    return [instruction1, instruction2];
   } catch (err) {
     console.error(err);
   }
@@ -247,6 +242,20 @@ export async function fetchLabel(wallet: AnchorWallet, labelPda: web3.PublicKey)
     const labelAccount = await (program.account as any).label.fetch(labelPda);
 
     return labelAccount;
+  } catch (error) {
+    console.error("ユーザーの取得中にエラーが発生しました:", error);
+    throw error;
+  }
+}
+
+export async function fetchFilm(wallet: AnchorWallet, filmPda: web3.PublicKey) {
+  try {
+    const program = setProgram(wallet);
+    if (!USERSEED) throw new Error("USERSEEDが環境変数に設定されていません");
+
+    const filmAccount = await (program.account as any).film.fetch(filmPda);
+
+    return filmAccount;
   } catch (error) {
     console.error("ユーザーの取得中にエラーが発生しました:", error);
     throw error;

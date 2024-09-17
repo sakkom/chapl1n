@@ -15,7 +15,7 @@ const VerticalUserCard: FC<{ userAccount: UserAccountProps }> = ({ userAccount }
   return (
     <>
       {userAccount && (
-        <Card className="w-full">
+        <Card className="w-full bg-transparent shadow-none">
           <CardHeader className="flex flex-col items-center space-y-4 pb-2">
             <Avatar
               name="Helen Keller"
@@ -23,20 +23,20 @@ const VerticalUserCard: FC<{ userAccount: UserAccountProps }> = ({ userAccount }
               variant="marble"
               size={80}
             />
-            <div className="text-center">
+            <div className="text-center text-white">
               <h2 className="text-xl font-bold">{userAccount.userAccount.name}</h2>
-              <p className="text-sm text-muted-foreground">PDA: {userAccount.userPda.toString()}</p>
+              <p className="text-sm">PDA: {userAccount.userPda.toString()}</p>
             </div>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 gap-8 mt-6">
+            <div className="grid grid-cols-2 gap-8 mt-6 text-white">
               <div className="text-center">
                 <p className="text-3xl font-bold">1</p>
-                <p className="text-sm text-muted-foreground mt-1">Label</p>
+                <p className="text-sm mt-1">Label</p>
               </div>
               <div className="text-center">
                 <p className="text-3xl font-bold">10</p>
-                <p className="text-sm text-muted-foreground mt-1">History</p>
+                <p className="text-sm mt-1">History</p>
               </div>
             </div>
           </CardContent>

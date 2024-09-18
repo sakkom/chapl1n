@@ -68,3 +68,33 @@ export async function postFilm(flyer: File, labelPda: string, msPda: string, act
 
   return response.json();
 }
+
+export async function executeTxNode(txPda: string) {
+
+  const response = await fetch(
+    "http://localhost:3000/api/label/msTxs/execute",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(txPda),
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
+
+  return response.json() ;
+}
+
+export async function getCredit(msPda: string) {
+  const response = await fetch(`http://localhost:3000/api/label/msTxs/${msPda}`, {method: "GET"});
+
+  if(!response.ok) {
+    throw new Error("Network response was not ok");
+  }
+
+  return response.json();
+}

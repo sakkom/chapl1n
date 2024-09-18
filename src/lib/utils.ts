@@ -1,9 +1,13 @@
+"use client"
+
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import * as web3 from "@solana/web3.js";
 import { fetchAllDigitalAssetByOwner, fetchDigitalAsset } from '@metaplex-foundation/mpl-token-metadata'
 import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
 import {  publicKey } from '@metaplex-foundation/umi';
+import Squads, { Wallet } from "@sqds/sdk";
+import { AnchorWallet } from "@solana/wallet-adapter-react";
 
 export type Flyer = {
   collectionMint: web3.PublicKey,
@@ -74,5 +78,33 @@ export async function fetchMasterCopy(vault: web3.PublicKey) {
     //   name: "Unknown",
     //   image: ""
     // };
+  }
+}
+
+export async function approveTxUser(
+  wallet:  AnchorWallet | Wallet,
+  txPda: web3.PublicKey,
+) {
+  try {
+    const squads = Squads.devnet(wallet as Wallet, { commitmentOrConfig: "confirmed" });
+    const txState = await squads.approveTransaction(txPda);
+
+    return txState;
+  } catch (e) {
+    console.error(e)
+  }
+}
+
+export async function rejectTxUser(
+  wallet: AnchorWallet | Wallet,
+  txPda: web3.PublicKey,
+) {
+  try {
+    const squads = Squads.devnet(wallet as Wallet, { commitmentOrConfig: "confirmed" });
+    const txState = await squads.rejectTransaction(txPda);
+
+    return txState;
+  } catch (e) {
+    console.error(e)
   }
 }

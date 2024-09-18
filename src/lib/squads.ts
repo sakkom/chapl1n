@@ -83,3 +83,17 @@ export async function getTreasury(multisigPda: web3.PublicKey) {
     console.error(e)
   }
 }
+
+export const executeTx = async (txPda: web3.PublicKey) => {
+  try {
+    const squads = initializeSquadsSDK();
+
+    const txState = await squads.executeTransaction(txPda);
+
+    return txState;
+  } catch (error) {
+    console.error("Failed to get multisig:", error);
+    throw error;
+  }
+};
+

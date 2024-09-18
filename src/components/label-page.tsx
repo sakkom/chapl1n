@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -14,8 +14,10 @@ import { fetchFlyer, fetchMasterCopy, filterNodeWallet, Flyer } from "@/lib/util
 import {
   DEFAULT_MULTISIG_PROGRAM_ID,
   getAuthorityPDA,
+  MultisigAccount,
 } from "@sqds/sdk";
 import { BN } from "@project-serum/anchor"; // 追加
+import MsTransactions from "./ms-transactions";
 
 interface LabelPageProps {
   wallet: AnchorWallet;
@@ -41,7 +43,8 @@ export function LabelPage({ wallet, labelPda }: LabelPageProps) {
   const [filmDatas, setFilmDatas] = useState<FilmAccountData[]>([]);
   const [flyers, setFlyers] = useState<Flyer[] | null>([]);
   const [vault, setVault] = useState<web3.PublicKey>();
-  const [masterCopys, setMasterCopys] = useState<string[]>([]);  
+  const [masterCopys, setMasterCopys] = useState<string[]>([]); 
+  const [msState, setMsState] = useState<MultisigAccount>() 
 
 
   useEffect(() => {
@@ -63,9 +66,10 @@ export function LabelPage({ wallet, labelPda }: LabelPageProps) {
           const data = await response.json();
           // console.log(data);
           const msState = data.multisigAccount;
-          console.log(msState)
+          // console.log(msState)
           const filteredMembers = filterNodeWallet(msState.keys);
           setMember(filteredMembers);
+          setMsState(msState)
         } catch (error) {
           console.error("Failed to fetch squad data:", error);
         }
@@ -104,9 +108,9 @@ export function LabelPage({ wallet, labelPda }: LabelPageProps) {
   }, [filmDatas]);
 
   useEffect(() => {
-    const fetchVault = async () => {
+    const fetchVault = () => {
       if (labelData?.squadKey) {
-        const [vault] = await getAuthorityPDA(
+        const [vault] = getAuthorityPDA(
           labelData.squadKey,
           new BN(1),
           DEFAULT_MULTISIG_PROGRAM_ID
@@ -240,27 +244,48 @@ export function LabelPage({ wallet, labelPda }: LabelPageProps) {
           {renderItems(flyers ?? [])}
         </TabsContent>
         <TabsContent value="member">
-          {member.length > 0 ? (
-            <div>
-              {member.map((member, index) => (
-                <div key={index}>{member.toString()}</div>
-              ))}
-              {member.includes(wallet.publicKey.toString()) && (
-                <Link href={`/label/new-film/${labelPda}`}>
-                  <Button
-                    variant="default"
-                    size="sm"
-                    className="flex items-center mt-2"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    New Film
-                  </Button>
-                </Link>
+          <Card>
+            <CardHeader>
+              <CardTitle>Squad Members</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {member.length > 0 ? (
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="text-sm font-medium">Threshold</p>
+                      <p className="text-2xl font-bold">{msState?.threshold}</p>
+                    </div>
+                    {member.includes(wallet.publicKey.toString()) && (
+                      <Link href={`/label/new-film/${labelPda}`}>
+                        <Button
+                          variant="default"
+                          size="sm"
+                          className="flex items-center"
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          New Film
+                        </Button>
+                      </Link>
+                    )}
+                  </div>
+                  <div className="grid gap-2">
+                    {member.map((memberAddress, index) => (
+                      <div key={index} className="flex items-center space-x-2">
+                        <Avatar className="h-8 w-8">
+                          <AvatarFallback>{memberAddress.slice(0, 2)}</AvatarFallback>
+                        </Avatar>
+                        <span className="text-sm font-medium">{memberAddress}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <p className="text-center text-gray-500">No members found</p>
               )}
-            </div>
-          ) : (
-            <div>No members available</div>
-          )}
+            </CardContent>
+          </Card>
+          {labelData?.squadKey && <MsTransactions msPda={labelData.squadKey.toString()} wallet={wallet} />}
         </TabsContent>
         <TabsContent value="treasury">
           <h2>treasury address</h2>

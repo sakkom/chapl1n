@@ -15,8 +15,8 @@ const createFilmLayout = borsh.struct([
 
 const connectFilmLayout = borsh.struct([
   borsh.array(borsh.u8(), 8, 'discriminator'),
-  borsh.publicKey('filmPda'),
-  borsh.publicKey('relatedFilmPda')
+  borsh.publicKey('label'),
+  borsh.publicKey('filmPda')
 ]);
 
 export async function fetchTransactionStates(squads: Squads, msPda: web3.PublicKey, txIndex: number) {
@@ -29,25 +29,37 @@ export async function fetchTransactionStates(squads: Squads, msPda: web3.PublicK
   return txStates;
 }
 
+
 //  CHECK: /anchorClient.tsのcreateFilmで作成したinstructionの解読
 export async function fetchFilmInstructionStates(squads: Squads, txPda: web3.PublicKey, ixIndex: number) {
-  const ixStates = [];
+  const validDiscriminators = {
+    createFilm: [28, 13, 137, 220, 225, 114, 22, 2],
+    connectFilm: [110, 211, 169, 38, 176, 232, 78, 50]
+  };
+
   
+  
+  const decodedData = []
   for (let i = 1; i <= ixIndex; i++) {
     const [ixPda] = getIxPDA(txPda, new BN(i), DEFAULT_MULTISIG_PROGRAM_ID);
     const ixState = await squads.getInstruction(ixPda);
 
-    // Decode the buffer data using the appropriate layout
-    let decodedData;
+    
     if (i === 1) {
-      decodedData = createFilmLayout.decode(ixState.data);
-      console.log(decodedData);
+      const data = createFilmLayout.decode(ixState.data);
+      if (JSON.stringify(data.discriminator) !== JSON.stringify(validDiscriminators.createFilm)) {
+        throw new Error('Invalid discriminator for createFilm');
+      }
+      decodedData.push(data)
     } else if (i === 2) {
-      decodedData = connectFilmLayout.decode(ixState.data);
-      console.log(decodedData);
+      const data = connectFilmLayout.decode(ixState.data);
+      if (JSON.stringify(data.discriminator) !== JSON.stringify(validDiscriminators.connectFilm)) {
+        throw new Error('Invalid discriminator for connectFilm');
+      }
+      decodedData.push(data);
     }
 
-    ixStates.push({ ixPda,  decodedData });
   }
-  return ixStates;
+
+  return {txPda, decodedData};
 }

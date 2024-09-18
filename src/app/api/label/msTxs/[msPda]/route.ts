@@ -24,16 +24,15 @@ export async function GET(
 
     const txStates = await fetchTransactionStates(squads, msPda, txIndex);
 
-    const ixStates = [];
+    const createFilmTxs = [];
     for (const txState of txStates) {
       const instructionIndex = txState.instructionIndex; 
       const txPda = txState.publicKey; 
-      console.log(`Fetching instructions for txPda: ${txPda.toString()} with instructionIndex: ${instructionIndex}`);
       const fetchedIxStates = await fetchFilmInstructionStates(squads, txPda, instructionIndex);
-      ixStates.push(...fetchedIxStates);
+      createFilmTxs.push({txState, decodedDatas: fetchedIxStates});
     }
   
-    return new Response(JSON.stringify({ ixStates }), {
+    return new Response(JSON.stringify({ createFilmTxs }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });

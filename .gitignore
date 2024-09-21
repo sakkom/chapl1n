@@ -37,3 +37,6 @@ next-env.d.ts
 
 # テストディレクトリを無視
 ./src/app/test
+
+
+keypair.json

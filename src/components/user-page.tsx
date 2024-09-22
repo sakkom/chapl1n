@@ -173,8 +173,7 @@
 
 import * as web3 from "@solana/web3.js";
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { LayoutGrid, LayoutList } from "lucide-react";
@@ -182,6 +181,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { fetchUser } from "../../anchorClient";
 import { useAnchorWallet } from "@solana/wallet-adapter-react";
+import UserCardV3 from "./user/user-card-vol3";
 
 export default function UserPage() {
   const [layout, setLayout] = useState("single");
@@ -245,34 +245,11 @@ export default function UserPage() {
 
   return (
     <div className="w-full max-w-md mx-auto space-y-4">
-      <Card>
-        <CardHeader className="flex flex-row items-center space-x-4 pb-2">
-          <Avatar className="w-20 h-20">
-            <AvatarImage
-              src="/chaplin.png"
-              alt="User avatar"
-              width={100}
-              height={100}
-            />
-            <AvatarFallback>UN</AvatarFallback>
-          </Avatar>
-          <h2 className="text-2xl font-bold">{userAccount?.userAccount.name || "Loading..."}</h2>
-        </CardHeader>
-        <CardContent>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex justify-between items-center">
-                <span className="text-lg font-medium">Deposit</span>
-                <span className="text-2xl font-bold">100</span>
-              </div>
-            </CardContent>
-          </Card>
-        </CardContent>
-      </Card>
+      <UserCardV3 wallet={wallet || null}/>
 
       <Tabs defaultValue="label" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="label">Label</TabsTrigger>
+          <TabsTrigger value="label">ラベル</TabsTrigger>
           <TabsTrigger value="history">History</TabsTrigger>
         </TabsList>
         <TabsContent value="label">

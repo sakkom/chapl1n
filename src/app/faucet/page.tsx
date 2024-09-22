@@ -8,9 +8,12 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PopcornFaucet } from "@/components/popcorn-faucet";
+import { postAirdrop } from "@/lib/api";
+import { useWallet } from "@solana/wallet-adapter-react";
 
 
 export default function Page() {
+  const { publicKey } = useWallet();
   const mint = new web3.PublicKey("H61GtPmCHYADu52F2rK6LL5oZGKuTJpxjYmdAtf53PLC");
   const tokenAccount = new web3.PublicKey("54hkFbtFb2c7Yu7a3YBqsQPwkePbnwt7zxkgC2PEjG5G");
   const [mintMetaData, setMintMetaData] = useState<TokenMetadata | null>();
@@ -35,8 +38,13 @@ export default function Page() {
     fetchData();
   }, []);
 
-  const handleAirdrop = () => {
-
+  const handleAirdrop = async() => {
+    try {
+      if(!publicKey) return;
+      //CHECK:: amountの同期をする!
+     await postAirdrop(publicKey?.toString());
+    } catch(e) {
+    }
   };
 
   return (

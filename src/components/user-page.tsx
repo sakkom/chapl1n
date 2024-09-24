@@ -17,7 +17,7 @@ import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
 import { useRouter } from "next/navigation"; 
 import { HistoryNFT } from "@/lib/metaplex";
 
-type CollectionSearchResult = {
+export type CollectionSearchResult = {
   items: Array<HistoryNFT>,
   total: number,
 }

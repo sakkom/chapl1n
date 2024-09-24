@@ -20,6 +20,12 @@ import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import LoadingPop from "@/components/loading-pop";
 import Link from "next/link";
+import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
+import { dasApi } from "@metaplex-foundation/digital-asset-standard-api";
+import { publicKey } from "@metaplex-foundation/umi";
+import { CollectionSearchResult } from "./user-page";
+import { useQuery } from "@tanstack/react-query";
+
 
 type ViewReceipt = {
   creatorsReceipt: [{ sig: string; address: string; amount: string }];
@@ -52,7 +58,8 @@ export default function PopcornVideo({
   const [isVideoEnded, setIsVideoEnded] = useState(false);
   const [receipt, setReceipt] = useState<ViewReceipt>();
   const [isLoading, setIsLoading] = useState(false);
-  const [tree, setTree] = useState<PublicKey>();
+  // const [tree, setTree] = useState<PublicKey>();
+  const [haveHistory, setHaveHistory] = useState<boolean>();
   const [historyOwnerAccount, setHistoryOwnerAccount] = useState<{
     userProfile: UserProfile;
     userPda: PublicKey;
@@ -60,16 +67,16 @@ export default function PopcornVideo({
 
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  useEffect(() => {
-    async function fetchTree() {
-      if (filmData?.label) {
-        const labelData = await fetchLabel(wallet, filmData.label);
-        const tree = labelData.bubblegumTree;
-        setTree(tree);
-      }
-    }
-    fetchTree();
-  }, [filmData]);
+  const { data: tree  } = useQuery({
+    queryKey: ["tree", wallet, filmData?.label],
+    queryFn: async () => {
+      if (!wallet || !filmData?.label) throw new Error("Missing dependencies");
+      const labelData = await fetchLabel(wallet, filmData.label);
+      return labelData.bubblegumTree;
+    },
+    enabled: !!wallet && !!filmData?.label,
+  });
+
 
   useEffect(() => {
     async function getUserProfilePda() {
@@ -82,7 +89,31 @@ export default function PopcornVideo({
       });
     }
     getUserProfilePda();
-  }, [historyOwner]);
+  }, [historyOwner, wallet]);
+
+  useEffect(() => {
+    const umi = createUmi(
+      "https://devnet.helius-rpc.com/?api-key=1210bef3-8110-4b7f-af32-f30426f47781"
+    ).use(dasApi());
+    async function checkHistory() {
+      const result = await (
+        umi.rpc as unknown as {
+          searchAssets: (params: {
+            owner: string;
+            grouping: string[];
+          }) => Promise<CollectionSearchResult>;
+        }
+      ).searchAssets({
+        owner: publicKey(wallet.publicKey),
+        grouping: ["collection", filmData.collectionMint.toString()],
+      });
+      if (result.items.length > 0) {
+        setHaveHistory(true);
+      }
+    }
+
+    checkHistory();
+  }, [wallet, filmData]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -102,54 +133,64 @@ export default function PopcornVideo({
       return tokens;
     };
 
-    const handleVideoEnd = async () => {
-      const tokens = updateProgress();
-      setIsLoading(true);
-      if (transferType === "Normal") {
-        try {
-          const result = await postSettlement(
-            clientATA.toString(),
-            filmData.actor,
-            filmData.label.toString(),
-            tokens
-          );
-          setReceipt(result);
-        } catch (error) {
-          console.error("Error in postSettlement:", error);
-        } finally {
-          setIsLoading(false);
+    if (haveHistory) {
+      video.addEventListener("loadedmetadata", updateDuration);
+      video.addEventListener("timeupdate", updateProgress);
+
+      return () => {
+        video.removeEventListener("loadedmetadata", updateDuration);
+        video.removeEventListener("timeupdate", updateProgress);
+      };
+    } else {
+      const handleVideoEnd = async () => {
+        const tokens = updateProgress();
+        setIsLoading(true);
+        if (transferType === "Normal") {
+          try {
+            const result = await postSettlement(
+              clientATA.toString(),
+              filmData.actor,
+              filmData.label.toString(),
+              tokens
+            );
+            setReceipt(result);
+          } catch (error) {
+            console.error("Error in postSettlement:", error);
+          } finally {
+            setIsLoading(false);
+          }
+        } else if (transferType === "History") {
+          try {
+            const result = await postSettlement(
+              clientATA.toString(),
+              filmData.actor,
+              filmData.label.toString(),
+              tokens,
+              historyOwner?.toString()
+            );
+            setReceipt(result);
+          } catch (error) {
+            console.error("Error in postSettlement:", error);
+          } finally {
+            setIsLoading(false);
+          }
         }
-      } else if (transferType === "History") {
-        try {
-          const result = await postSettlement(
-            clientATA.toString(),
-            filmData.actor,
-            filmData.label.toString(),
-            tokens,
-            historyOwner?.toString()
-          );
-          setReceipt(result);
-        } catch (error) {
-          console.error("Error in postSettlement:", error);
-        } finally {
-          setIsLoading(false);
-        }
-      }
 
-      setIsVideoEnded(true);
-      setIsPlaying(false);
-    };
+        setIsVideoEnded(true);
+        setIsPlaying(false);
+      };
 
-    video.addEventListener("loadedmetadata", updateDuration);
-    video.addEventListener("timeupdate", updateProgress);
-    video.addEventListener("ended", handleVideoEnd);
+      video.addEventListener("loadedmetadata", updateDuration);
+      video.addEventListener("timeupdate", updateProgress);
+      video.addEventListener("ended", handleVideoEnd);
 
-    return () => {
-      video.removeEventListener("loadedmetadata", updateDuration);
-      video.removeEventListener("timeupdate", updateProgress);
-      video.removeEventListener("ended", handleVideoEnd);
-    };
-  }, [clientATA, filmData]);
+      return () => {
+        video.removeEventListener("loadedmetadata", updateDuration);
+        video.removeEventListener("timeupdate", updateProgress);
+        video.removeEventListener("ended", handleVideoEnd);
+      };
+    }
+  }, [clientATA, filmData, haveHistory]);
 
   const togglePlay = () => {
     const video = videoRef.current;
@@ -186,7 +227,7 @@ export default function PopcornVideo({
         <Link href={`/profile/${historyOwnerAccount.userPda.toString()}`}>
           <div className="flex">
             <History />
-            <p>{historyOwnerAccount?.userProfile?.name || 'Unknown'}</p>
+            <p>{historyOwnerAccount?.userProfile?.name || "Unknown"}</p>
           </div>
         </Link>
       )}
@@ -216,15 +257,22 @@ export default function PopcornVideo({
                 eatenPOP={eatenPOP}
                 duration={duration}
               />
+            ) : haveHistory ? (
+              <div className="flex items-center">
+                <h3 className="text-lg font-semibold mr-2">Owned History:</h3>
+                <span className="text-3xl font-bold">🍿</span>
+              </div>
             ) : (
               <div className="flex items-center">
                 <h3 className="text-lg font-semibold mr-2">Eaten:</h3>
                 <span className="text-3xl font-bold">{displayTokens} 🍿</span>
               </div>
             )}
-            <Button disabled={!isVideoEnded} onClick={handleMint}>
-              mint
-            </Button>
+            {!haveHistory && (
+              <Button disabled={!isVideoEnded} onClick={handleMint}>
+                mint
+              </Button>
+            )}
           </div>
           {isLoading && <LoadingPop />}
         </CardContent>

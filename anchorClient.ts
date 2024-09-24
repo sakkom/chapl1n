@@ -7,12 +7,36 @@ import { Program } from "@coral-xyz/anchor";
 import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
 import { AnchorWallet } from "@solana/wallet-adapter-react";
 
-const USERSEED = "user-profile";
+const USERSEED = "user-profile-2";
 const LABELSEED = "label";
 
 export type Actor = {
   creator: web3.PublicKey[],
   coCreator: web3.PublicKey[],
+}
+
+export type Film = {
+  collectionMint: web3.PublicKey,
+  label: web3.PublicKey,
+  actor: Actor,
+}
+
+export type Label = {
+  squadKey: web3.PublicKey,
+  bubblegumTree: web3.PublicKey,
+  films: web3.PublicKey[]
+}
+
+export type UserProfile = {
+  authority: web3.PublicKey,
+  name: string,
+  label: web3.PublicKey[],
+  history: web3.PublicKey[],
+}
+
+export type UserSet = {
+  userAccount: UserProfile,
+  userPda: web3.PublicKey
 }
 
 export const programId = new anchor.web3.PublicKey(
@@ -27,7 +51,7 @@ const connection = new web3.Connection(
 
 export function setProgram(wallet: NodeWallet | AnchorWallet) {
   try {
-    console.log("Setting provider...");
+    // console.log("Setting provider...");
     const provider = new anchor.AnchorProvider(connection, wallet, {
       commitment: "confirmed",
     });
@@ -152,7 +176,7 @@ export async function createFilm(
       })
       .instruction()
 
-      const instruction2 = await program.methods
+    const instruction2 = await program.methods
       .connectFilmToLabel(labelPda, filmPda)
       .accounts({
         user: wallet.publicKey,
@@ -162,8 +186,8 @@ export async function createFilm(
       })
       .instruction()
 
-      // const transaction = new web3.Transaction().add(instruction1, instruction2);
-      // const signature = await connection.sendTransaction(transaction, [wallet.payer]);
+    // const transaction = new web3.Transaction().add(instruction1, instruction2);
+    // const signature = await connection.sendTransaction(transaction, [wallet.payer]);
 
     return [instruction1, instruction2];
   } catch (err) {
@@ -225,7 +249,7 @@ export async function fetchUser(wallet: AnchorWallet, authority: web3.PublicKey)
     console.log("ユーザープロフィールアカウントデータ:", (userAccount as any).name);
 
     return {
-      userAccount: userAccount as any,
+      userAccount: userAccount as UserProfile,
       userPda: userPda
     };
   } catch (error) {
@@ -259,5 +283,83 @@ export async function fetchFilm(wallet: AnchorWallet, filmPda: web3.PublicKey) {
   } catch (error) {
     console.error("ユーザーの取得中にエラーが発生しました:", error);
     throw error;
+  }
+}
+
+//collection push実装
+export async function pushHistory(
+  wallet: NodeWallet,
+  authority: web3.PublicKey,
+  collectionMint: web3.PublicKey
+) {
+  try {
+
+    const program = setProgram(wallet);
+    if (!USERSEED) throw new Error("not USERSEED in env");
+
+    const [userPda] = web3.PublicKey.findProgramAddressSync(
+      [Buffer.from(USERSEED), authority.toBuffer()],
+      program.programId,
+    );
+
+    const userAccount = await (program.account as any).userProfile.fetch(userPda);
+    // console.log(userAccount);
+    if (userAccount.history.some((mint: web3.PublicKey) => mint.equals(collectionMint))) {
+      // console.log("collectionMintは既にhistoryに含まれています");
+      return;
+    }
+
+    return await program.methods
+      .pushHistory(collectionMint)
+      .accounts({
+        userProfile: userPda,
+        user: wallet.publicKey,
+      })
+      .signers([wallet.payer])
+      .rpc();
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+export async function getFilmPda(
+  wallet: AnchorWallet,
+  collectionMint: web3.PublicKey,
+) {
+  try {
+
+    const program = setProgram(wallet);
+    if (!USERSEED) throw new Error("not USERSEED in env");
+
+    const [filmPda] = web3.PublicKey.findProgramAddressSync(
+      [Buffer.from("film"), collectionMint.toBuffer()],
+      program.programId
+    );
+
+    // console.log("filmPda", filmPda.toString());
+
+    return filmPda;
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+export async function getUserProfile(
+  wallet: AnchorWallet,
+  userPda: web3.PublicKey,
+) {
+  try {
+
+    const program = setProgram(wallet);
+    if (!USERSEED) throw new Error("not USERSEED in env");
+
+    const userAccount = await (program.account as any).userProfile.fetch(userPda);
+
+    return {
+      userAccount: userAccount as UserProfile,
+      userPda: userPda
+    };
+  } catch (err) {
+    console.error(err);
   }
 }

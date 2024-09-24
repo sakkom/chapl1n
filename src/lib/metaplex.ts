@@ -1,12 +1,23 @@
 
-
+import * as metaplex from "@metaplex-foundation/umi";
+import * as web3 from "@solana/web3.js";
 import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
 import { createSignerFromKeypair, signerIdentity, generateSigner, createGenericFileFromBrowserFile, percentAmount } from '@metaplex-foundation/umi';
 import { getKeypairFromEnvironment } from "@solana-developers/helpers";
 import { createTree } from '@metaplex-foundation/mpl-bubblegum';
-import { createNft, mplTokenMetadata,  } from '@metaplex-foundation/mpl-token-metadata'
+import { createNft, fetchDigitalAsset, mplTokenMetadata,  } from '@metaplex-foundation/mpl-token-metadata'
 import { irysUploader } from "@metaplex-foundation/umi-uploader-irys";
+import { mintToCollectionV1 } from '@metaplex-foundation/mpl-bubblegum';
 // import { base58 } from '@metaplex-foundation/umi-serializers';
+
+export type HistoryNFT = {
+  id: string;
+  content: { json_uri: string };
+  grouping: [{ group_key: "collection", group_value: string }];
+  ownership: { owner: string };
+  image: string;
+  filmPda: web3.PublicKey;
+};
 
 export const initializeNodeUmi = () => {
   const umi = createUmi(
@@ -60,14 +71,15 @@ export async function getMetadataUri(
   });
 
   const [imageUri] = await umi.uploader.upload([genericFile]);
-  console.log(imageUri);
+  const irysImageUri = imageUri.replace("https://arweave.net", "https://devnet.irys.xyz");
+  // console.log(imageUri);
 
   // https://gateway.irys.xyz/
 
   const uri = await umi.uploader.uploadJson({
     name: "Film PoP",
     description: "Generative art on Solana.",
-    image: imageUri,
+    image: irysImageUri,
     animation_url: "",
     external_url: "https://example.com",
     attributes: [
@@ -77,7 +89,7 @@ export async function getMetadataUri(
       },
     ],
     properties: {
-      file: [{ uri: imageUri }],
+      file: [{ uri: irysImageUri }],
     },
   });
 
@@ -106,4 +118,31 @@ export async function createFlyer(uri: string) {
 
 }
 
+export async function mintHistoryNFT(client: metaplex.PublicKey, collectionMint: metaplex.PublicKey, merkleTree: metaplex.PublicKey) {
+  try {
+    const umi = initializeNodeUmi();
+    const collectionMintData = await fetchDigitalAsset(umi, metaplex.publicKey(collectionMint))
+    const uri = collectionMintData.metadata.uri.replace("https://arweave.net", "https://devnet.irys.xyz");
+    const name = collectionMintData.metadata.name;
+
+    const leafOwner = client;
+
+    return await mintToCollectionV1(umi, {
+      leafOwner,
+      merkleTree,
+      collectionMint,
+      metadata: {
+        name: name,
+        uri: uri,
+        sellerFeeBasisPoints: 0,
+        collection: { key: collectionMint, verified: false },
+        creators: [
+          { address: umi.identity.publicKey, verified: false, share: 100 },
+        ],
+      },
+    }).sendAndConfirm(umi);
+  } catch(e) {
+    console.error(e);
+  }
+}
 

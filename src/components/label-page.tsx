@@ -18,6 +18,7 @@ import {
 } from "@sqds/sdk";
 import { BN } from "@project-serum/anchor"; // 追加
 import MsTransactions from "./ms-transactions";
+import { useRouter } from "next/navigation"; // 追加
 
 interface LabelPageProps {
   wallet: AnchorWallet;
@@ -31,6 +32,7 @@ interface LabelAccountData {
 }
 
 interface FilmAccountData {
+  filmPda: web3.PublicKey,
   collectionMint: web3.PublicKey,
   label: web3.PublicKey,
   actor: Actor,
@@ -45,7 +47,7 @@ export function LabelPage({ wallet, labelPda }: LabelPageProps) {
   const [vault, setVault] = useState<web3.PublicKey>();
   const [masterCopys, setMasterCopys] = useState<string[]>([]); 
   const [msState, setMsState] = useState<MultisigAccount>() 
-
+  const router = useRouter(); // 追加
 
   useEffect(() => {
     async function getLabelData() {
@@ -82,7 +84,8 @@ export function LabelPage({ wallet, labelPda }: LabelPageProps) {
     async function fetchFilms() {
       if (labelData?.films) {
         try {
-          const filmDataPromises = labelData.films.map(filmPda => fetchFilm(wallet, filmPda));
+          const filmDataPromises = labelData.films.map(filmPda => 
+            fetchFilm(wallet, filmPda).then(filmData => ({ ...filmData, filmPda })));
           const filmsData = await Promise.all(filmDataPromises);
           console.log(filmsData);
           setFilmDatas(filmsData);
@@ -97,9 +100,9 @@ export function LabelPage({ wallet, labelPda }: LabelPageProps) {
   useEffect(() => {
     async function fetchFlyers() {
       try {
-        const flyerPromises = filmDatas.map(film => fetchFlyer(film.collectionMint));
+        const flyerPromises = filmDatas.map(film => fetchFlyer(film.collectionMint, film.filmPda));
         const flyers = await Promise.all(flyerPromises);
-        setFlyers(flyers);
+        setFlyers(flyers as Flyer[]);
       } catch (error) {
         console.error("フライヤーデータの取得中にエラーが発生しました:", error);
       }
@@ -169,6 +172,7 @@ export function LabelPage({ wallet, labelPda }: LabelPageProps) {
             >
               {item.name}
             </h3>
+            <Button onClick={() => router.push(`/theater/${item.filmPda.toString()}`)}>film view</Button>
           </CardContent>
         </Card>
       ))}

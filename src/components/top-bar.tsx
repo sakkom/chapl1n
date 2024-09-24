@@ -26,6 +26,7 @@ export default function TopBar() {
           </button>
         </div>
       </div>
+      
       <AnimatePresence>
         {isOpen && (
           <motion.div

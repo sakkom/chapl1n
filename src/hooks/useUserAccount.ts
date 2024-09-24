@@ -1,21 +1,14 @@
 "use client"
 
 import { useState, useEffect } from "react";
-import * as web3 from "@solana/web3.js";
-import { fetchUser } from "../../anchorClient";
+import { fetchUser, UserSet } from "../../anchorClient";
 import { AnchorWallet } from "@solana/wallet-adapter-react";
 
-interface UserAccount {
-  userAccount: {
-    name: string;
-    label: web3.PublicKey[];
-  };
-  userPda: web3.PublicKey;
-}
 
-export function useUserAccount(wallet: AnchorWallet | null) {
-  const [userAccount, setUserAccount] = useState<UserAccount | null>(null);
+export function useUserAccount(wallet: AnchorWallet ) {
+  const [userAccount, setUserAccount] = useState<UserSet>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
 
   useEffect(() => {
     const fetchUserAccount = async () => {

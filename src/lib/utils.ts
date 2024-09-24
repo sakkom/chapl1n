@@ -9,7 +9,9 @@ import {  publicKey } from '@metaplex-foundation/umi';
 import Squads, { Wallet } from "@sqds/sdk";
 import { AnchorWallet } from "@solana/wallet-adapter-react";
 
+
 export type Flyer = {
+  filmPda: web3.PublicKey
   collectionMint: web3.PublicKey,
   name: string,
   image: string
@@ -36,7 +38,7 @@ export function filterNodeWallet(keys: string[]): string[] {
 }
 
 //client
-export async function fetchFlyer(mint: web3.PublicKey) {
+export async function fetchFlyer(mint: web3.PublicKey, filmPda: web3.PublicKey) {
   try {
     
   const umi = createUmi('https://devnet.helius-rpc.com/?api-key=1210bef3-8110-4b7f-af32-f30426f47781')
@@ -48,14 +50,16 @@ export async function fetchFlyer(mint: web3.PublicKey) {
     const uriData = await result.json(); 
 
     const flyer: Flyer = {
+      filmPda,
       collectionMint: mint,
       name: name,
-      image: uriData.image.replace("https://arweave.net", "https://devnet.irys.xyz")
+      image: uriData.image
     }
 
     return flyer
   } catch(e) {
     return {
+      filmPda: "",
       collectionMint: mint,
       name: "Unknown",
       image: ""
@@ -108,4 +112,5 @@ export async function rejectTxUser(
     console.error(e)
   }
 }
+
 

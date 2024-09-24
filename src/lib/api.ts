@@ -1,4 +1,5 @@
 import { ActorForm } from "@/components/actors-form";
+import { Actor } from "../../anchorClient";
 
 export async function postLabel(initialMembers: string[]) {
   const data = {
@@ -118,3 +119,60 @@ export async function postAirdrop(clientPubkey: string) {
 
   return response.json() ;
 }
+
+export async function postHisotyNFT(client: string, collectionMint: string, merkleTree: string) { 
+  const formData = new FormData();
+  formData.append('client', client); 
+  formData.append('collectionMint', collectionMint);
+  formData.append('merkleTree', merkleTree); 
+
+  const response = await fetch(
+    "http://localhost:3000/api/film/history",
+    {
+      method: "POST",
+      body: formData,
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
+
+  return response.json();
+}
+
+export async function postSettlement(clientATA: string, actor: Actor, label: string, amount: number, historyOwner?: string) { 
+  const formData = new FormData();
+
+  formData.append('clientATA', clientATA);
+
+  actor.creator.forEach((creator) => {
+    formData.append(`creator`, creator.toString());
+  });
+
+  actor.coCreator.forEach((coCreator) => {
+    formData.append(`coCreator`, coCreator.toString());
+  });
+
+  console.log(amount.toString);
+  formData.append('label', label);
+  formData.append('amount', amount.toString());
+
+  if(historyOwner) formData.append('historyOwner', historyOwner);
+
+  const response = await fetch(
+    "http://localhost:3000/api/film/settlement",
+    {
+      method: "POST",
+      body: formData,
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
+
+  return response.json();
+}
+
+

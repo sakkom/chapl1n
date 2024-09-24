@@ -1,17 +1,10 @@
 import { FC } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { web3 } from "@coral-xyz/anchor";
 import Avatar from "boring-avatars";
+import { UserSet } from "../../../anchorClient";
 
-interface UserAccountProps {
-  userAccount: {
-    name: string;
-    label: web3.PublicKey[];
-  };
-  userPda: web3.PublicKey;
-}
 
-const VerticalUserCard: FC<{ userAccount: UserAccountProps }> = ({ userAccount }) => {
+const VerticalUserCard: FC<{ userAccount: UserSet }> = ({ userAccount }) => {
   return (
     <>
       {userAccount && (

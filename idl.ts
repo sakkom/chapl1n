@@ -8,7 +8,7 @@ import { Idl } from "@coral-xyz/anchor";
 
 
 
-export const IDL: Idl = {
+export const IDL: Idl ={
   "address": "DbNKdE3k31kCUTgNCKgiMD3CHn4MrWiuPZ2Ey4nHrPuF",
   "metadata": {
     "name": "chaplinProtocol",
@@ -250,7 +250,9 @@ export const IDL: Idl = {
                   102,
                   105,
                   108,
-                  101
+                  101,
+                  45,
+                  50
                 ]
               },
               {
@@ -323,6 +325,36 @@ export const IDL: Idl = {
         }
       ],
       "args": []
+    },
+    {
+      "name": "pushHistory",
+      "discriminator": [
+        136,
+        174,
+        106,
+        159,
+        167,
+        20,
+        187,
+        220
+      ],
+      "accounts": [
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "userProfile",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "collectionMint",
+          "type": "pubkey"
+        }
+      ]
     }
   ],
   "accounts": [
@@ -439,11 +471,21 @@ export const IDL: Idl = {
         "kind": "struct",
         "fields": [
           {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
             "name": "name",
             "type": "string"
           },
           {
             "name": "label",
+            "type": {
+              "vec": "pubkey"
+            }
+          },
+          {
+            "name": "history",
             "type": {
               "vec": "pubkey"
             }
@@ -453,6 +495,8 @@ export const IDL: Idl = {
     }
   ]
 };
+
+
 
 
 

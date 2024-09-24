@@ -1,174 +1,3 @@
-
-// import * as web3 from "@solana/web3.js";
-// import { useState, useEffect } from "react";
-// import { Card, CardContent, CardHeader } from "@/components/ui/card";
-// import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-// import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-// import { Button } from "@/components/ui/button";
-// import { LayoutGrid, LayoutList } from "lucide-react";
-// import Image from "next/image";
-// import Link from "next/link";
-// import { fetchUser } from "../../anchorClient";
-// import { useAnchorWallet } from "@solana/wallet-adapter-react";
-
-// export function UserPage() {
-//   const [layout, setLayout] = useState("single");
-//   const [userAccount, setUserAccount] = useState<{ userAccount: { name: string; labels: web3.PublicKey[] }; userPda: web3.PublicKey } | null>(null);
-//   const wallet = useAnchorWallet();
-
-//   useEffect(() => {
-//     const fetchUserAccount = async () => {
-//       if (wallet) {
-//         const mockAddress = new web3.PublicKey("4Pv8xnSwJ4ZZ8yeo2rmNfBznLrGZojic9RuXi8d1Li71");
-//         const account = await fetchUser(wallet, mockAddress);
-//         console.log(account);
-//         const userAccountData = {
-//           name: account.userAccount.name,
-//           labels: account.userAccount.labels.map((label: string) => new web3.PublicKey(label))
-//         };
-//         setUserAccount({ userAccount: userAccountData, userPda: account.userPda });
-//       }
-//     };
-
-//     fetchUserAccount();
-//   }, [wallet]);
-
-//   interface Item {
-//     image: string;
-//     name: string;
-//   }
-
-//   const histories: Item[] = [
-//     { image: "/radar.jpg", name: "Film1" },
-//     { image: "/radar.jpg", name: "Film2" },
-//     { image: "/radar.jpg", name: "Film3" },
-//   ];
-
-//   const renderItems = (items: Item[]) => (
-//     <div
-//       className={`grid gap-4 ${
-//         layout === "double" ? "grid-cols-2" : "grid-cols-1"
-//       }`}
-//     >
-//       {items.map((item, index) => (
-//         <Card key={index}>
-//           <Link href={`/label`}>
-//             <CardContent
-//               className={`p-4 ${
-//                 layout === "single"
-//                   ? "flex items-center space-x-4"
-//                   : "space-y-3"
-//               }`}
-//             >
-//               <div
-//                 className={`${
-//                   layout === "single" ? "w-1/3" : "w-full"
-//                 } aspect-square`}
-//               >
-//                 <Image
-//                   src={item.image}
-//                   alt={`${item.name} image`}
-//                   width={500}
-//                   height={500}
-//                   className="w-full h-full object-cover rounded-md"
-//                 />
-//               </div>
-//               <h3
-//                 className={`text-lg font-semibold ${
-//                   layout === "single" ? "flex-1" : "text-center"
-//                 }`}
-//               >
-//                 {item.name}
-//               </h3>
-//             </CardContent>
-//           </Link>
-//         </Card>
-//       ))}
-//     </div>
-//   );
-
-//   return (
-//     <div className="w-full max-w-md mx-auto space-y-4">
-//       <Card>
-//         <CardHeader className="flex flex-row items-center space-x-4 pb-2">
-//           <Avatar className="w-20 h-20">
-//             <AvatarImage
-//               src="/chaplin.png"
-//               alt="User avatar"
-//               width={100}
-//               height={100}
-//             />
-//             <AvatarFallback>UN</AvatarFallback>
-//           </Avatar>
-//           <h2 className="text-2xl font-bold">{userAccount?.userAccount.name}</h2>
-//         </CardHeader>
-//         <CardContent>
-//           <Card>
-//             <CardContent className="p-4">
-//               <div className="flex justify-between items-center">
-//                 <span className="text-lg font-medium">Deposit</span>
-//                 <span className="text-2xl font-bold">100</span>
-//               </div>
-//             </CardContent>
-//           </Card>
-//         </CardContent>
-//       </Card>
-
-//       <Tabs defaultValue="label" className="w-full">
-//         <TabsList className="grid w-full grid-cols-2">
-//           <TabsTrigger value="label">Label</TabsTrigger>
-//           <TabsTrigger value="history">History</TabsTrigger>
-//         </TabsList>
-//         <TabsContent value="label">
-//           <div className="mb-4 flex justify-end space-x-2">
-//             <Button
-//               variant={layout === "single" ? "default" : "ghost"}
-//               size="icon"
-//               onClick={() => setLayout("single")}
-//               aria-label="1列表示"
-//             >
-//               <LayoutList className="h-4 w-4" />
-//             </Button>
-//             <Button
-//               variant={layout === "double" ? "default" : "ghost"}
-//               size="icon"
-//               onClick={() => setLayout("double")}
-//               aria-label="2列表示"
-//             >
-//               <LayoutGrid className="h-4 w-4" />
-//             </Button>
-//           </div>
-//           {renderItems(userAccount?.userAccount.labels.map((label, index) => ({
-//             image: "/radar.jpg",
-//             name: `Label ${index + 1}`
-//           })) || [])}
-//         </TabsContent>
-//         <TabsContent value="history">
-//           <div className="mb-4 flex justify-end space-x-2">
-//             <Button
-//               variant={layout === "single" ? "default" : "ghost"}
-//               size="icon"
-//               onClick={() => setLayout("single")}
-//               aria-label="1列表示"
-//             >
-//               <LayoutList className="h-4 w-4" />
-//             </Button>
-//             <Button
-//               variant={layout === "double" ? "default" : "ghost"}
-//               size="icon"
-//               onClick={() => setLayout("double")}
-//               aria-label="2列表示"
-//             >
-//               <LayoutGrid className="h-4 w-4" />
-//             </Button>
-//           </div>
-//           {renderItems(histories)}
-//         </TabsContent>
-//       </Tabs>
-//     </div>
-//   );
-// }
-
 "use client";
 
 import * as web3 from "@solana/web3.js";
@@ -179,26 +8,75 @@ import { Button } from "@/components/ui/button";
 import { LayoutGrid, LayoutList } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { fetchUser } from "../../anchorClient";
+import {  getFilmPda, getUserProfile, UserProfile } from "../../anchorClient";
 import { useAnchorWallet } from "@solana/wallet-adapter-react";
 import UserCardV3 from "./user/user-card-vol3";
+import { publicKey } from "@metaplex-foundation/umi";
+import { dasApi } from "@metaplex-foundation/digital-asset-standard-api";
+import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
+import { useRouter } from "next/navigation"; 
+import { HistoryNFT } from "@/lib/metaplex";
 
-export default function UserPage() {
+type CollectionSearchResult = {
+  items: Array<HistoryNFT>,
+  total: number,
+}
+
+export default function UserPage({userPda}: {userPda: web3.PublicKey}) {
   const [layout, setLayout] = useState("single");
-  const [userAccount, setUserAccount] = useState<{ userAccount: { name: string; label: web3.PublicKey[] }; userPda: web3.PublicKey } | null>(null);
+  const [userAccount, setUserAccount] = useState<{
+    userAccount: UserProfile;
+    userPda: web3.PublicKey;
+  } | null>(null);
+  const [historyNFTs, setHistoryNFTs] = useState<HistoryNFT[]>([]);
   const wallet = useAnchorWallet();
+  const router = useRouter(); 
+
 
   useEffect(() => {
-    const fetchUserAccount = async () => {
-      if (wallet) {
-        const authority = wallet.publicKey
-        const account = await fetchUser(wallet, authority);
-        setUserAccount(account);
+    async function getUserData() {
+      if (!wallet) return;
+        const data = await getUserProfile(wallet, userPda);
+        if (data) setUserAccount(data);
+    }
+    getUserData();
+  }, [userPda, wallet]);
+
+  const umi = createUmi(
+    "https://devnet.helius-rpc.com/?api-key=1210bef3-8110-4b7f-af32-f30426f47781"
+  ).use(dasApi());
+
+  useEffect(() => {
+    const fetchAsset = async () => {
+      if (wallet && userAccount) {
+        // const user = await fetchUser(wallet, wallet.publicKey);
+        const userHistory = userAccount?.userAccount.history || []
+        
+        const allResults = await Promise.all(
+          userHistory.map(async (historyMint: web3.PublicKey) => {
+            const result = await (umi.rpc as unknown as { searchAssets: (params: { owner: string, grouping: string[] }) => Promise<CollectionSearchResult> }).searchAssets({
+              owner: publicKey(userAccount?.userAccount.authority),
+              grouping: ["collection", historyMint.toBase58()],
+            });
+            // console.log("result", result);
+            if(result.items) {
+              const item: HistoryNFT = result.items[0];
+              const uriData = await fetch(item.content.json_uri).then(res => res.json());
+              const collectionMint = new web3.PublicKey(item.grouping[0].group_value)
+              const filmPda = await getFilmPda(wallet, collectionMint);
+              return { ...item, image: uriData.image, filmPda };
+            }
+            return undefined;
+          })
+        );
+
+        const filteredResults = allResults.filter((item) => item !== undefined) as HistoryNFT[];
+        // console.log("search your have collection nft", filteredResults);
+        setHistoryNFTs(filteredResults);
       }
     };
-
-    fetchUserAccount();
-  }, [wallet]);
+    fetchAsset();
+  }, [wallet, userAccount]);
 
   const renderItems = (items: web3.PublicKey[]) => (
     <div
@@ -243,9 +121,52 @@ export default function UserPage() {
     </div>
   );
 
+  const renderHistoryItems = (items: HistoryNFT[]) => (
+    <div
+      className={`grid gap-4 ${
+        layout === "double" ? "grid-cols-2" : "grid-cols-1"
+      }`}
+    >
+      {items.map((item, index) => (
+        <Card key={index}>
+          <CardContent
+            className={`p-4 ${
+              layout === "single" ? "flex items-center space-x-4" : "space-y-3"
+            }`}
+          >
+            <div
+              className={`${
+                layout === "single" ? "w-1/3" : "w-full"
+              } aspect-square`}
+            >
+              <img
+                src={item.image}
+                alt={`image`}
+                width={500}
+                height={500}
+                className="w-full h-full object-cover rounded-md"
+              />
+            </div>
+            <h3
+              className={`text-lg font-semibold ${
+                layout === "single" ? "flex-1" : "text-center"
+              }`}
+            >
+              FILM HISTORY
+            </h3>
+            <Button onClick={() => router.push(`/theater/${item.filmPda.toString()}/${item.id}`)}>
+              film view
+            </Button>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+
   return (
     <div className="w-full max-w-md mx-auto space-y-4">
-      <UserCardV3 wallet={wallet || null}/>
+      
+      {userPda ? (<UserCardV3 wallet={wallet || null} userPda={userPda} />) : (<UserCardV3 wallet={wallet || null} />)}
 
       <Tabs defaultValue="label" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
@@ -271,7 +192,11 @@ export default function UserPage() {
               <LayoutGrid className="h-4 w-4" />
             </Button>
           </div>
-          {userAccount ? renderItems(userAccount.userAccount.label) : <p>Loading labels...</p>}
+          {userAccount ? (
+            renderItems(userAccount.userAccount.label)
+          ) : (
+            <p>Loading labels...</p>
+          )}
         </TabsContent>
         <TabsContent value="history">
           <div className="mb-4 flex justify-end space-x-2">
@@ -292,7 +217,11 @@ export default function UserPage() {
               <LayoutGrid className="h-4 w-4" />
             </Button>
           </div>
-          <p>History functionality not implemented yet.</p>
+          {historyNFTs.length > 0 ? (
+            renderHistoryItems(historyNFTs)
+          ) : (
+            <p>Loading history...</p>
+          )}
         </TabsContent>
       </Tabs>
     </div>

@@ -4,13 +4,24 @@ import { useEffect, useRef, useState } from "react";
 import ProfileForm from "@/components/profile-form";
 import { Button } from "@/components/ui/button";
 import VerticalUserCard from "@/components/user/vertical-user-card";
-import { useUserAccount } from "@/hooks/useUserAccount";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import Link from "next/link";
 import { AnchorWallet } from "@solana/wallet-adapter-react";
+import { fetchUser, UserSet } from "../../anchorClient";
 
 export default function EnterCard({ wallet }: { wallet: AnchorWallet | null }) {
-  const { userAccount, isLoading } = useUserAccount(wallet ?? null);
+  const [userProfile, setUserProfile] = useState<UserSet>();
+
+  useEffect(() => {
+    async function getUser() {
+      if (wallet && wallet.publicKey) {
+        const data = await fetchUser(wallet, wallet.publicKey);
+        setUserProfile(data);
+      }
+    }
+    getUser();
+  }, [wallet]);
+
   const cardRef = useRef<HTMLDivElement>(null);
   const [vantaEffect, setVantaEffect] = useState<ReturnType<
     typeof window.VANTA.FOG
@@ -64,19 +75,13 @@ export default function EnterCard({ wallet }: { wallet: AnchorWallet | null }) {
       >
         <div className="absolute inset-0 flex items-center justify-center">
           {wallet ? (
-            <>
-              {isLoading ? (
-                <p className="text-lg">処理中...</p>
+            <div className="w-full h-full flex items-center justify-center">
+              {userProfile?.userAccount ? (
+                <VerticalUserCard userAccount={userProfile}  />
               ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  {userAccount ? (
-                    <VerticalUserCard userAccount={userAccount} />
-                  ) : (
-                    <ProfileForm />
-                  )}
-                </div>
+                <ProfileForm />
               )}
-            </>
+            </div>
           ) : (
             <div className="text-center">
               {/* <p className="text-lg mb-4">ウォレットを接続してください</p> */}
@@ -85,7 +90,7 @@ export default function EnterCard({ wallet }: { wallet: AnchorWallet | null }) {
           )}
         </div>
       </div>
-      {wallet && userAccount ? (
+      {wallet && userProfile ? (
         <Link href="/profile" className="block mt-4">
           <Button className="w-full text-lg py-4 bg-gradient-to-r from-gray-100 to-white text-black border border-gray-200 rounded-lg transition-all duration-300 shadow-sm hover:shadow-md hover:from-white hover:to-gray-100">
           Enter🍿

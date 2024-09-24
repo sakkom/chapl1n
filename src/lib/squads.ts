@@ -10,8 +10,9 @@ import BN from "bn.js";
 export const initializeSquadsSDK = () => {
   const keypair = getKeypairFromEnvironment("NODEWALLET_PRIVATE_KEY");
   const wallet = new NodeWallet(keypair);
+  const connection = new web3.Connection( 'https://devnet.helius-rpc.com/?api-key=1210bef3-8110-4b7f-af32-f30426f47781', 'confirmed');
 
-  const squads = Squads.devnet(wallet);
+  const squads = new Squads({connection, wallet})
 
   return squads;
 };

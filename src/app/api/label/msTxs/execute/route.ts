@@ -4,7 +4,7 @@ import { executeTx } from "@/lib/squads";
 export async function POST(request: Request) {
   try {
     const txPda = await request.json();
-    console.log(txPda);
+    console.log("execute ----------------------",txPda);
 
     const txState = await executeTx(new web3.PublicKey(txPda));
     console.log(txState);

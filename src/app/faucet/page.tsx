@@ -28,7 +28,7 @@ export default function Page() {
       const tokenAccountInfo = await spl.getAccount(connection, tokenAccount, { commitment: "confirmed" } as unknown as web3.Commitment, spl.TOKEN_2022_PROGRAM_ID);
       // console.log("ミントメタデータ:", mintMetaData);
       // console.log("ミント情報:", mintInfo);
-      // console.log("トークンアカウント情報:", tokenAccountInfo);
+      console.log("トークンアカウント情報:", tokenAccountInfo);
       
       setMintMetaData(mintMetaData); // mintMetaDataを設定
       setMintInfo(mintInfo); // mintInfoを設定
@@ -36,7 +36,7 @@ export default function Page() {
     };
 
     fetchData();
-  }, []);
+  }, [mint, tokenAccount]);
 
   const handleAirdrop = async() => {
     try {

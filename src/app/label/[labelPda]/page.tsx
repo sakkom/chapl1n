@@ -10,9 +10,11 @@ export default function Page({ params }: { params: { labelPda: string } }) {
 
   return (
     <>
-      <AppLayoutComponent>
-        {wallet && <LabelPage wallet={wallet} labelPda={labelPda} />}
-      </AppLayoutComponent>
+      {wallet && (
+        <AppLayoutComponent wallet={wallet}>
+          {wallet && <LabelPage wallet={wallet} labelPda={labelPda} />}
+        </AppLayoutComponent>
+      )}
     </>
   );
 }

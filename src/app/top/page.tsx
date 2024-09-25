@@ -5,7 +5,7 @@ import Image from "next/image"
 import { motion } from "framer-motion"
 import EnterCard from "@/components/enter-card"
 
-export default function Component() {
+export default function Page() {
   const wallet = useAnchorWallet()
 
   return (

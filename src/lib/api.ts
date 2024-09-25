@@ -1,13 +1,15 @@
 import { ActorForm } from "@/components/actors-form";
 import { Actor } from "../../anchorClient";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 export async function postLabel(initialMembers: string[]) {
   const data = {
     initialMembers: initialMembers,
   };
 
   const response = await fetch(
-    "http://localhost:3000/api/label/create-label",
+    `${API_URL}/label/create-label`,
     {
       method: "POST",
       headers: {
@@ -31,7 +33,7 @@ export async function postUserProfile(authority: string, name: string) {
   };
 
   const response = await fetch(
-    "http://localhost:3000/api/user/create-user",
+    `${API_URL}/user/create-user`,
     {
       method: "POST",
       headers: {
@@ -56,7 +58,7 @@ export async function postFilm(flyer: File, labelPda: string, msPda: string, act
   formData.append('actor', JSON.stringify(actor));
 
   const response = await fetch(
-    "http://localhost:3000/api/film",
+    `${API_URL}/film`,
     {
       method: "POST",
       body: formData,
@@ -73,7 +75,7 @@ export async function postFilm(flyer: File, labelPda: string, msPda: string, act
 export async function executeTxNode(txPda: string) {
 
   const response = await fetch(
-    "http://localhost:3000/api/label/msTxs/execute",
+    `${API_URL}/label/msTxs/execute`,
     {
       method: "POST",
       headers: {
@@ -91,7 +93,7 @@ export async function executeTxNode(txPda: string) {
 }
 
 export async function getCredit(msPda: string) {
-  const response = await fetch(`http://localhost:3000/api/label/msTxs/${msPda}`, {method: "GET"});
+  const response = await fetch(`${API_URL}/label/msTxs/${msPda}`, {method: "GET"});
 
   if(!response.ok) {
     throw new Error("Network response was not ok");
@@ -103,7 +105,7 @@ export async function getCredit(msPda: string) {
 export async function postAirdrop(clientPubkey: string) {
   
   const response = await fetch(
-    "http://localhost:3000/api/faucet",
+    `${API_URL}/faucet`,
     {
       method: "POST",
       headers: {
@@ -127,7 +129,7 @@ export async function postHisotyNFT(client: string, collectionMint: string, merk
   formData.append('merkleTree', merkleTree); 
 
   const response = await fetch(
-    "http://localhost:3000/api/film/history",
+    `${API_URL}/film/history`,
     {
       method: "POST",
       body: formData,

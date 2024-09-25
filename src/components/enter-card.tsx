@@ -91,7 +91,7 @@ export default function EnterCard({ wallet }: { wallet: AnchorWallet | null }) {
         </div>
       </div>
       {wallet && userProfile ? (
-        <Link href="/profile" className="block mt-4">
+        <Link href={`/profile/${userProfile.userPda.toString()}`} className="block mt-4">
           <Button className="w-full text-lg py-4 bg-gradient-to-r from-gray-100 to-white text-black border border-gray-200 rounded-lg transition-all duration-300 shadow-sm hover:shadow-md hover:from-white hover:to-gray-100">
           Enter🍿
           </Button>

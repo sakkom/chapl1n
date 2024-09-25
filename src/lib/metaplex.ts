@@ -76,22 +76,53 @@ export async function getMetadataUri(
 
   // https://gateway.irys.xyz/
 
+  // const uri = await umi.uploader.uploadJson({
+  //   name: "Film PoP",
+  //   description: "Generative art on Solana.",
+  //   image: irysImageUri,
+  //   animation_url: "",
+  //   external_url: "https://example.com",
+  //   attributes: [
+  //     {
+  //       trait_type: "Genre",
+  //       value: "no genre",
+  //     },
+  //   ],
+  //   properties: {
+  //     file: [{ uri: irysImageUri }],
+  //   },
+  // });
+
+  // const uri = await umi.uploader.uploadJson({
+  //     name: "chapl1n",
+  //     symbol: "POP",
+  //     description: "Radar Hackathon",
+  //     image: irysImageUri,
+  // })
+  // console.log(uri.replace("https://arweave.net", "https://devnet.irys.xyz"));
+
   const uri = await umi.uploader.uploadJson({
-    name: "Film PoP",
-    description: "Generative art on Solana.",
+    name: "ちゃぷりん",
+    symbol: "POP",
+    description: "Radar Hackathon",
     image: irysImageUri,
-    animation_url: "",
-    external_url: "https://example.com",
     attributes: [
       {
-        trait_type: "Genre",
-        value: "no genre",
-      },
+        trait_type: "attack",
+        value: "4"
+      }
     ],
     properties: {
-      file: [{ uri: irysImageUri }],
-    },
+      files: [
+        {
+          uri: irysImageUri,
+          type: "image/png"
+        }
+      ]
+    }
   });
+  console.log(uri.replace("https://arweave.net", "https://devnet.irys.xyz"));
+
 
   return uri;
 

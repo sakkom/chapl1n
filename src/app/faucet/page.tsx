@@ -14,8 +14,8 @@ import { useWallet } from "@solana/wallet-adapter-react";
 
 export default function Page() {
   const { publicKey } = useWallet();
-  const mint = new web3.PublicKey("H61GtPmCHYADu52F2rK6LL5oZGKuTJpxjYmdAtf53PLC");
-  const tokenAccount = new web3.PublicKey("54hkFbtFb2c7Yu7a3YBqsQPwkePbnwt7zxkgC2PEjG5G");
+  const mint = new web3.PublicKey(process.env.NEXT_PUBLIC_MINT!);
+  const tokenAccount = new web3.PublicKey(process.env.NEXT_PUBLIC_TOKEN_ACCOUNT!);
   const [mintMetaData, setMintMetaData] = useState<TokenMetadata | null>();
   const [mintInfo, setMintInfo] = useState<spl.Mint>();
   const [tokenAccountInfo, setTokenAccountInfo] = useState<spl.Account>();

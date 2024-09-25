@@ -4,136 +4,82 @@ import React, { useEffect, useState } from "react";
 import { Globe, UserCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { AnchorWallet } from "@solana/wallet-adapter-react";
 import { PublicKey } from "@solana/web3.js";
 import { fetchUser } from "../../anchorClient";
+import { useClientPopcorn } from "@/ClientPopcornContext";
 
 export function AppLayoutComponent({
   children,
   wallet,
 }: {
   children: React.ReactNode;
-  wallet: AnchorWallet,
+  wallet: AnchorWallet;
 }) {
-  const [isOpen, setIsOpen] = React.useState(false);
   const [userPda, setUserPda] = useState<PublicKey>();
+  const { clientATAInfo } = useClientPopcorn();
 
   useEffect(() => {
     async function getPda() {
-      if(!wallet) return;
+      if (!wallet) return;
       const data = await fetchUser(wallet, wallet.publicKey);
       setUserPda(data.userPda);
     }
     getPda();
   }, [wallet]);
 
-  const handleLinkClick = () => {
-    setIsOpen(false);
-  };
+  const formattedAmount = clientATAInfo
+    ? (Number(clientATAInfo.amount) / 10 ** 9).toFixed(3)
+    : "0.000";
 
   return (
-    <div
-      className="flex flex-col h-screen min-h-screen mx-auto bg-background"
-      style={{ width: "500px" }}
-    >
-      {/* Top Bar */}
-      <div
-        className="fixed top-0 left-0 right-0 z-50 flex justify-center"
-        style={{ height: "80px" }}
-      >
-        <div
-          className="bg-background border-b"
-          style={{ width: "500px", height: "80px" }}
-        >
-          <div
-            className="container mx-auto px-4 py-2 flex justify-between items-center"
-            style={{ height: "100%" }}
-          >
-            <div className="flex items-center">
-              <button
-                className="text-lg font-bold hover:text-primary transition-colors"
-                onClick={() => setIsOpen(!isOpen)}
-                aria-expanded={isOpen}
-                aria-controls="content-area"
-              >
-                chapl1n 🍿
-              </button>
-              <Link href={`/profile/${userPda?.toString()}`} passHref>
-                <Button variant="ghost" size="lg" className="p-2" asChild>
-                  <a aria-label="User Profile">
-                    <UserCircle color="pink" size={40} />
-                  </a>
-                </Button>
-              </Link>
+    <div className="flex justify-center min-h-screen ">
+      <div className="w-full max-w-3xl lg:w-3/5 relative bg-white bg-opacity-15 shadow-md">
+        {/* Top Bar */}
+        <header className="fixed top-0 z-50 bg-black bg-opacity-15 border-b border-gray-700 w-full max-w-3xl lg:w-3/5">
+          <div className="px-4 h-14 flex justify-between items-center">
+            <div className="flex items-center space-x-2">
+              <span className="text-base font-bold text-white">chapl1n</span>
             </div>
-            <div className="p-2">
-              {" "}
-              {/* 追加されたラッパー div */}
+            <div className="flex items-center space-x-2">
+              <span role="img" aria-label="popcorn">🍿</span>
+              <span className="text-base font-bold text-white">{formattedAmount} POP</span>
               <WalletMultiButton />
             </div>
           </div>
-          <AnimatePresence>
-            {isOpen && (
-              <motion.div
-                id="content-area"
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.3 }}
-                className="bg-black border-b overflow-hidden"
-                style={{ width: "500px", position: "absolute", top: "100%" }}
+        </header>
+        {/* Content Area */}
+        <main className="flex-grow mt-14 mb-14 px-0 sm:px-0 xs:px-0 overflow-auto min-h-screen text-white">
+          {children}
+        </main>
+
+        {/* Bottom Bar */}
+        <footer className="fixed bottom-0 z-50 bg-black bg-opacity-15 border-t border-gray-700 w-full max-w-3xl lg:w-3/5">
+          <div className="px-4 h-14 flex justify-around items-center">
+            <Link href="/explorer" passHref>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="flex flex-col items-center space-y-1"
               >
-                <div className="container mx-auto px-4 py-8">
-                  <Link href={`/create-label`} onClick={handleLinkClick}>
-                    <div className="flex items-center justify-center h-24">
-                      <p className="text-lg font-medium">Label を作成</p>
-                    </div>
-                  </Link>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
-
-      {/* Content Area */}
-      <div
-        className="flex-grow overflow-auto"
-        style={{ marginTop: "80px", marginBottom: "68px" }}
-      >
-        {" "}
-        {/* Top Barの高さに合わせて調整 */}
-        <AppContent>{children}</AppContent>
-      </div>
-
-      {/* Bottom Bar */}
-      <div
-        className="fixed bottom-0 left-0 right-0 bg-background border-t p-2"
-        style={{ width: "500px", margin: "0 auto" }}
-      >
-        <div className="flex justify-around items-center max-w-md mx-auto">
-          <Link href="/explore" passHref>
-            <Button variant="ghost" size="lg" className="p-2" asChild>
-              <a aria-label="Explore">
-                <Globe color="pink" size={40} />
-              </a>
-            </Button>
-          </Link>
-          <Link href="/profile" passHref>
-            <Button variant="ghost" size="lg" className="p-2" asChild>
-              <a aria-label="User Profile">
-                <UserCircle color="pink" size={40} />
-              </a>
-            </Button>
-          </Link>
-        </div>
+                <Globe className="h-5 w-5 text-white" />
+                <span className="text-xs text-white">Explorer</span>
+              </Button>
+            </Link>
+            <Link href={`/profile/${userPda?.toString()}`} passHref>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="flex flex-col items-center space-y-1"
+              >
+                <UserCircle className="h-5 w-5 text-white" />
+                <span className="text-xs text-white">Profile</span>
+              </Button>
+            </Link>
+          </div>
+        </footer>
       </div>
     </div>
   );
-}
-
-function AppContent({ children }: { children: React.ReactNode }) {
-  return <div className="p-4">{children}</div>;
 }

@@ -4,6 +4,7 @@ import { Poppins } from "next/font/google";
 import { BackGround } from "@/components/background";
 import { AppWalletProvider } from "@/AppWalletProvider";
 import { ReactQueryClientProvider } from "@/QueryClientProvider";
+import { ClientPopcornProvider } from "@/ClientPopcornContext";
 
 const poppins = Poppins({ weight: "600", subsets: ["latin"] });
 
@@ -19,15 +20,16 @@ export default function RootLayout({
 }>) {
   return (
     <ReactQueryClientProvider>
-    <html lang="en">
-      <AppWalletProvider>
-        <body className={`${poppins.className}`} >
-          <BackGround />
-          {children}
-        </body>
-      </AppWalletProvider>
-    </html>
+      <html lang="en">
+        <AppWalletProvider>
+          <ClientPopcornProvider>
+            <body className={`${poppins.className}`}>
+              <BackGround />
+              {children}
+            </body>
+          </ClientPopcornProvider>
+        </AppWalletProvider>
+      </html>
     </ReactQueryClientProvider>
-
   );
 }

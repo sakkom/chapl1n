@@ -51,7 +51,7 @@ export default function Page({ params }: { params: { filmPda: string } }) {
     <>
       {wallet && (
         <AppLayoutComponent wallet={wallet}>
-          <div className="aspect-video mb-4">
+          <div className="mb-4 w-full">
             {filmData && clientATA && wallet && (
               <PopcornVideo
                 videoUri="/Radar.MOV"

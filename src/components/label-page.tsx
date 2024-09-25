@@ -25,13 +25,13 @@ interface LabelPageProps {
   labelPda: web3.PublicKey;
 }
 
-interface LabelAccountData {
+export interface LabelAccountData {
   squadKey: web3.PublicKey;
   bubblegumTree: web3.PublicKey;
   films: web3.PublicKey[];
 }
 
-interface FilmAccountData {
+export interface FilmAccountData {
   filmPda: web3.PublicKey,
   collectionMint: web3.PublicKey,
   label: web3.PublicKey,

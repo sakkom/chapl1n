@@ -7,7 +7,7 @@ import * as web3 from "@solana/web3.js";
 import * as spl from "@solana/spl-token";
 import { useEffect, useState } from "react";
 import { TokenMetadata } from "@solana/spl-token-metadata";
-import {  getUserProfile, UserSet } from "../../../anchorClient";
+import { getUserProfile, UserSet } from "../../../anchorClient";
 
 interface UserCardV3Props {
   wallet: AnchorWallet | null;

@@ -1,7 +1,6 @@
 import { getKeypairFromEnvironment } from "@solana-developers/helpers";
 import * as web3 from "@solana/web3.js";
-import {  getOrCreateAssociatedTokenAccount, TOKEN_2022_PROGRAM_ID, transfer, transferChecked } from '@solana/spl-token';
-
+import { getOrCreateAssociatedTokenAccount, TOKEN_2022_PROGRAM_ID, transfer, transferChecked } from '@solana/spl-token';
 
 export async function trnasferCollectionMint(vault: web3.PublicKey, collectionMint: web3.PublicKey) {
   try {
@@ -45,11 +44,10 @@ export async function airdropPopcorn(
 ) {
   try {
     const connection = new web3.Connection("https://devnet.helius-rpc.com/?api-key=1210bef3-8110-4b7f-af32-f30426f47781", 'confirmed');
-    const mint = new web3.PublicKey("H61GtPmCHYADu52F2rK6LL5oZGKuTJpxjYmdAtf53PLC");
-    const tokenAccount = new web3.PublicKey("54hkFbtFb2c7Yu7a3YBqsQPwkePbnwt7zxkgC2PEjG5G");
+    const mint = new web3.PublicKey(process.env.NEXT_PUBLIC_MINT!);
+    const tokenAccount = new web3.PublicKey(process.env.NEXT_PUBLIC_TOKEN_ACCOUNT!);
 
     const nodeWallet = getKeypairFromEnvironment("NODEWALLET_PRIVATE_KEY");
-
 
     const clientATA = await getOrCreateAssociatedTokenAccount(
       connection,
@@ -145,7 +143,7 @@ export async function airdropPopcorn(
 export async function createATA(payer: web3.Keypair, publicKey: web3.PublicKey) {
   try {
     const connection = new web3.Connection("https://devnet.helius-rpc.com/?api-key=1210bef3-8110-4b7f-af32-f30426f47781", 'confirmed');
-    const MINT = new web3.PublicKey("H61GtPmCHYADu52F2rK6LL5oZGKuTJpxjYmdAtf53PLC");
+    const MINT = new web3.PublicKey(process.env.NEXT_PUBLIC_MINT!);
 
     return await getOrCreateAssociatedTokenAccount(
       connection,
@@ -166,7 +164,7 @@ export async function createATA(payer: web3.Keypair, publicKey: web3.PublicKey) 
 export async function transferPOP(delegate: web3.Keypair, from: web3.PublicKey, to: web3.PublicKey,  amount: bigint) {
   try {
     const connection = new web3.Connection("https://devnet.helius-rpc.com/?api-key=1210bef3-8110-4b7f-af32-f30426f47781", 'confirmed');
-    const MINT = new web3.PublicKey("H61GtPmCHYADu52F2rK6LL5oZGKuTJpxjYmdAtf53PLC");
+    const MINT = new web3.PublicKey(process.env.NEXT_PUBLIC_MINT!);
 
     return await transferChecked(
       connection,

@@ -25,6 +25,7 @@ import { dasApi } from "@metaplex-foundation/digital-asset-standard-api";
 import { publicKey } from "@metaplex-foundation/umi";
 import { CollectionSearchResult } from "./user-page";
 import { useQuery } from "@tanstack/react-query";
+import { useClientPopcorn } from "@/ClientPopcornContext";
 
 
 type ViewReceipt = {
@@ -64,6 +65,7 @@ export default function PopcornVideo({
     userProfile: UserProfile;
     userPda: PublicKey;
   }>();
+  const {refetchClientATAInfo} = useClientPopcorn()
 
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -154,6 +156,7 @@ export default function PopcornVideo({
               tokens
             );
             setReceipt(result);
+            refetchClientATAInfo();
           } catch (error) {
             console.error("Error in postSettlement:", error);
           } finally {
@@ -169,6 +172,7 @@ export default function PopcornVideo({
               historyOwner?.toString()
             );
             setReceipt(result);
+            refetchClientATAInfo();
           } catch (error) {
             console.error("Error in postSettlement:", error);
           } finally {
@@ -222,7 +226,7 @@ export default function PopcornVideo({
   };
 
   return (
-    <>
+    <div className="w-full xs:p-10">
       {transferType === "History" && historyOwnerAccount && (
         <Link href={`/profile/${historyOwnerAccount.userPda.toString()}`}>
           <div className="flex">
@@ -232,7 +236,7 @@ export default function PopcornVideo({
         </Link>
       )}
 
-      <Card className="w-full max-w-md mx-auto overflow-hidden bg-white text-black shadow-lg">
+      <Card className="w-full  mx-auto overflow-hidden bg-white text-black shadow-lg rounded-t-none">
         <div className="relative">
           <video
             ref={videoRef}
@@ -269,15 +273,26 @@ export default function PopcornVideo({
               </div>
             )}
             {!haveHistory && (
-              <Button disabled={!isVideoEnded} onClick={handleMint}>
-                mint
-              </Button>
+              <Dialog>
+              <DialogTrigger asChild>
+                <Button disabled={!isVideoEnded}>
+                  mint
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Mint Confirmation</DialogTitle>
+                </DialogHeader>
+                <p>Are you sure you want to mint this NFT?</p>
+                <Button onClick={handleMint}>Confirm</Button>
+              </DialogContent>
+            </Dialog>
             )}
           </div>
           {isLoading && <LoadingPop />}
         </CardContent>
       </Card>
-    </>
+    </div>
   );
 }
 

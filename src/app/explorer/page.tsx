@@ -28,14 +28,14 @@ const CardComponent = ({
   index,
 }: {
   flyer: Flyer;
-  amount: bigint;
+  amount: number;
   index: number;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
   // 256777783 demo bigint
   const beforeAmount = (Number(amount) / 10 ** 9).toFixed(4);
-  const afterAmount = (Number(amount - BigInt(256777783)) / 10 ** 9).toFixed(4);
+  const afterAmount = (Number(BigInt(amount) - BigInt(256777783)) / 10 ** 9).toFixed(4);
 
   const getTitleContent = (index: number) => {
     if (index === 0) {
@@ -218,7 +218,7 @@ export default function Component() {
               <CardComponent
                 key={index}
                 flyer={flyer as Flyer}
-                amount={clientATAInfo?.amount || BigInt(0)} // デフォルト値を設定
+                amount={Number(clientATAInfo?.amount) || Number(0)} // デフォルト値を設定
                 index={index}
               />
             ))}

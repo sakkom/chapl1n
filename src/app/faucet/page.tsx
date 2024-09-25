@@ -14,14 +14,15 @@ import { useWallet } from "@solana/wallet-adapter-react";
 
 export default function Page() {
   const { publicKey } = useWallet();
-  const mint = new web3.PublicKey(process.env.NEXT_PUBLIC_MINT!);
-  const tokenAccount = new web3.PublicKey(process.env.NEXT_PUBLIC_TOKEN_ACCOUNT!);
+
   const [mintMetaData, setMintMetaData] = useState<TokenMetadata | null>();
   const [mintInfo, setMintInfo] = useState<spl.Mint>();
   const [tokenAccountInfo, setTokenAccountInfo] = useState<spl.Account>();
 
   useEffect(() => {
     const fetchData = async () => {
+      const mint = new web3.PublicKey(process.env.NEXT_PUBLIC_MINT!);
+      const tokenAccount = new web3.PublicKey(process.env.NEXT_PUBLIC_TOKEN_ACCOUNT!);
       const connection = new web3.Connection("https://devnet.helius-rpc.com/?api-key=1210bef3-8110-4b7f-af32-f30426f47781", 'confirmed');
       const mintMetaData = await spl.getTokenMetadata(connection, mint);
       const mintInfo = await spl.getMint(connection, mint, { commitment: "confirmed" } as unknown as web3.Commitment, spl.TOKEN_2022_PROGRAM_ID);
@@ -36,7 +37,7 @@ export default function Page() {
     };
 
     fetchData();
-  }, [mint, tokenAccount]);
+  }, []);
 
   const handleAirdrop = async() => {
     try {

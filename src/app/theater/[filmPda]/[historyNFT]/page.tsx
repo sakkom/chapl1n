@@ -34,7 +34,7 @@ export default function Page({
       setFilmData(data);
     }
     fetchFilmData();
-  }, [filmPda]);
+  }, [filmPda, wallet]);
 
   useEffect(() => {
     const getCientATA = () => {
@@ -67,7 +67,7 @@ export default function Page({
       setHistoryOwner(new PublicKey(owner));
     };
     fetchAsset();
-  }, [wallet]);
+  }, [wallet, historyNFT]);
 
   return (
     <>

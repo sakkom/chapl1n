@@ -12,7 +12,7 @@ interface ClientPopcornContextProps {
   refetchClientATAInfo: () => void;
 }
 
-const ClientPopcornContext = createContext<ClientPopcornContextProps | undefined>(undefined);
+const ClientPopcornContext = createContext<ClientPopcornContextProps | null>(null);
 
 const queryClient = new QueryClient();
 

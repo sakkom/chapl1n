@@ -66,7 +66,6 @@ export default function PopcornVideo({
     userPda: PublicKey;
   }>();
   const {refetchClientATAInfo} = useClientPopcorn()
-  const [lastTime, setLastTime] = useState(0); // 追加: 最後の再生位置を保存するためのステート
 
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -128,11 +127,6 @@ export default function PopcornVideo({
 
     const updateProgress = () => {
       const currentTime = video.currentTime;
-      if (currentTime < lastTime) {
-        video.currentTime = lastTime; // 巻き戻しを防ぐ
-      } else {
-        setLastTime(currentTime); // 最後の再生位置を更新
-      }
       const eatenAmount = currentTime / 60;
       const tokens = Math.floor(eatenAmount * 10 ** 9);
       const displayTokens = parseFloat((tokens / 10 ** 9).toFixed(3));
@@ -200,7 +194,7 @@ export default function PopcornVideo({
         video.removeEventListener("ended", handleVideoEnd);
       };
     }
-  }, [clientATA, filmData, haveHistory, lastTime]);
+  }, [clientATA, filmData, haveHistory]);
 
   const togglePlay = () => {
     const video = videoRef.current;
@@ -248,7 +242,7 @@ export default function PopcornVideo({
             ref={videoRef}
             className="w-full aspect-video object-cover"
             onClick={togglePlay}
-            controls
+            playsInline
           >
             <source src={videoUri} type="video/mp4" />
           </video>

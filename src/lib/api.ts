@@ -163,7 +163,7 @@ export async function postSettlement(clientATA: string, actor: Actor, label: str
   if(historyOwner) formData.append('historyOwner', historyOwner);
 
   const response = await fetch(
-    "http://localhost:3000/api/film/settlement",
+    `${API_URL}/film/settlement`,
     {
       method: "POST",
       body: formData,

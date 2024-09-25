@@ -17,7 +17,7 @@ interface UserCardV3Props {
 const UserCardV3: FC<UserCardV3Props> = ({ wallet, userPda }) => {
   const [userProfile, setUserProfile] = useState<UserSet>();
   const MINT = new web3.PublicKey(
-    "H61GtPmCHYADu52F2rK6LL5oZGKuTJpxjYmdAtf53PLC"
+    process.env.NEXT_PUBLIC_MINT!
   );
   const [mintMetaData, setMintMetaData] = useState<TokenMetadata | null>();
   const [clientATA, setClientATA] = useState<spl.Account>();

@@ -2,9 +2,12 @@ import { FC } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import Avatar from "boring-avatars";
 import { UserSet } from "../../../anchorClient";
+import { useClientPopcorn } from "@/ClientPopcornContext";
+
 
 
 const VerticalUserCard: FC<{ userAccount: UserSet }> = ({ userAccount }) => {
+const { clientATAInfo} = useClientPopcorn();  
   return (
     <>
       {userAccount && (
@@ -21,14 +24,14 @@ const VerticalUserCard: FC<{ userAccount: UserSet }> = ({ userAccount }) => {
             </div>
           </CardHeader>
           <CardContent>
-            <div>🍿</div>
+            {clientATAInfo?.amount ? <>🍿{clientATAInfo.amount.toString()}POP</> : "0.000"}
             <div className="grid grid-cols-2 gap-8 mt-6 text-white">
               <div className="text-center">
-                <p className="text-3xl font-bold">1</p>
+                <p className="text-3xl font-bold">{userAccount.userAccount.label.length}</p>
                 <p className="text-sm mt-1">Label</p>
               </div>
               <div className="text-center">
-                <p className="text-3xl font-bold">10</p>
+                <p className="text-3xl font-bold">{userAccount.userAccount.history.length}</p>
                 <p className="text-sm mt-1">History</p>
               </div>
             </div>

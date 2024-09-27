@@ -168,9 +168,9 @@ export default function UserPage({userPda}: {userPda: web3.PublicKey}) {
       
       {userPda ? (<UserCardV3 wallet={wallet || null} userPda={userPda} />) : (<UserCardV3 wallet={wallet || null} />)}
 
-      <Tabs defaultValue="label" className="w-full">
+      <Tabs defaultValue="history" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="label">ラベル</TabsTrigger>
+          <TabsTrigger value="label">Label</TabsTrigger>
           <TabsTrigger value="history">History</TabsTrigger>
         </TabsList>
         <TabsContent value="label">

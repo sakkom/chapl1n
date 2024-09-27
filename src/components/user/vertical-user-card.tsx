@@ -4,39 +4,58 @@ import Avatar from "boring-avatars";
 import { UserSet } from "../../../anchorClient";
 import { useClientPopcorn } from "@/ClientPopcornContext";
 
-
-
 const VerticalUserCard: FC<{ userAccount: UserSet }> = ({ userAccount }) => {
-const { clientATAInfo} = useClientPopcorn();  
+  const { clientATAInfo } = useClientPopcorn();
   return (
     <>
       {userAccount && (
-        <Card className="w-full bg-transparent shadow-none">
-          <CardHeader className="flex flex-col items-center space-y-4 pb-2">
-            <Avatar
-              name="Helen Keller"
-              colors={["#3fbbb7", "#9945ff", "#14f195", "#5997cd", "#7179e0"]}
-              variant="marble"
-              size={80}
-            />
-            <div className="text-center text-white">
-              <h2 className="text-xl font-bold">{userAccount.userAccount.name}</h2>
+        <Card className="w-full bg-black mx-6 shadow-none">
+      <CardHeader className="flex flex-col items-center space-y-4 pb-2">
+        <Avatar
+          name={userAccount.userAccount.name}
+          colors={["#3fbbb7", "#9945ff", "#14f195", "#5997cd", "#7179e0"]}
+          variant="marble"
+          size={80}
+        />
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-white">
+            {userAccount.userAccount.name}
+          </h2>
+        </div>
+      </CardHeader>
+      <CardContent className="text-white">
+        <div className="text-center font-medium mb-6">
+          {clientATAInfo?.amount ? (
+
+              <span className="flex items-center justify-center text-2xl">
+                <span className="mr-2 text-3xl">🍿</span>
+                <span className="font-bold">
+                  {(Number(clientATAInfo.amount) / 10 ** 9).toFixed(4)}
+                </span>
+                <span className="ml-2 text-xl">POP</span>
+              </span>
+          ) : (
+            <div className="bg-gray-800 p-3 rounded-lg shadow-lg">
+              <span className="text-2xl font-bold">0.0000 POP</span>
             </div>
-          </CardHeader>
-          <CardContent>
-            {clientATAInfo?.amount ? <>🍿{clientATAInfo.amount.toString()}POP</> : "0.000"}
-            <div className="grid grid-cols-2 gap-8 mt-6 text-white">
-              <div className="text-center">
-                <p className="text-3xl font-bold">{userAccount.userAccount.label.length}</p>
-                <p className="text-sm mt-1">Label</p>
-              </div>
-              <div className="text-center">
-                <p className="text-3xl font-bold">{userAccount.userAccount.history.length}</p>
-                <p className="text-sm mt-1">History</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+          )}
+        </div>
+        <div className="grid grid-cols-2 gap-8 mt-6">
+          <div className="text-center">
+            <p className="text-3xl font-bold">
+              {userAccount.userAccount.label.length}
+            </p>
+            <p className="text-sm mt-1 text-gray-300">Labels</p>
+          </div>
+          <div className="text-center">
+            <p className="text-3xl font-bold">
+              {userAccount.userAccount.history.length}
+            </p>
+            <p className="text-sm mt-1 text-gray-300">History</p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
       )}
     </>
   );

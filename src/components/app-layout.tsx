@@ -40,11 +40,17 @@ export function AppLayoutComponent({
         <header className="fixed top-0 z-50 bg-black bg-opacity-15 border-b border-gray-700 w-full max-w-3xl lg:w-3/5">
           <div className="px-4 h-14 flex justify-between items-center">
             <div className="flex items-center space-x-2">
-              <span className="text-base font-bold text-white">chapl1n</span>
+              <Link href={"/top"}>
+                <span className="text-base font-bold text-white">chapl1n</span>
+              </Link>
             </div>
             <div className="flex items-center space-x-2">
-              <span role="img" aria-label="popcorn">🍿</span>
-              <span className="text-base font-bold text-white">{formattedAmount} POP</span>
+              <span role="img" aria-label="popcorn">
+                🍿
+              </span>
+              <span className="text-base font-bold text-white">
+                {formattedAmount} POP
+              </span>
               <WalletMultiButton />
             </div>
           </div>

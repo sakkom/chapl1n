@@ -279,7 +279,7 @@ export async function fetchFilm(wallet: AnchorWallet, filmPda: web3.PublicKey) {
 
     const filmAccount = await (program.account as any).film.fetch(filmPda);
 
-    return filmAccount;
+    return filmAccount as Film;
   } catch (error) {
     console.error("ユーザーの取得中にエラーが発生しました:", error);
     throw error;

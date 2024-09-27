@@ -11,6 +11,7 @@ import {
 } from "@solana/spl-token";
 import PopcornVideo from "@/components/popcorn-video";
 import { useQuery } from "@tanstack/react-query";
+import TheaterInfo from "@/components/theater-info";
 
 export default function Page({ params }: { params: { filmPda: string } }) {
   const filmPda = new PublicKey(params.filmPda);
@@ -53,13 +54,19 @@ export default function Page({ params }: { params: { filmPda: string } }) {
         <AppLayoutComponent wallet={wallet}>
           <div className="mb-4 w-full">
             {filmData && clientATA && wallet && (
-              <PopcornVideo
+              <>
+                            <PopcornVideo
                 videoUri="/Radar.MOV"
                 filmData={filmData}
                 clientATA={clientATA}
                 wallet={wallet}
                 transferType="Normal"
               />
+
+            <TheaterInfo wallet={wallet} collection={filmData.collectionMint} />
+              </>
+
+
             )}
           </div>
         </AppLayoutComponent>

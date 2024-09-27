@@ -311,35 +311,35 @@ const AccountCard: React.FC<AccountCardProps> = ({
   sig,
 }) => {
   const typeColors = {
-    Label: "bg-blue-100 text-blue-800",
-    Creator: "bg-green-100 text-green-800",
-    "Co-Creator": "bg-purple-100 text-purple-800",
-    History: "bg-yellow-100 text-yellow-800",
-  };
+    Label: "bg-blue-900 text-blue-100",
+    Creator: "bg-green-900 text-green-100",
+    "Co-Creator": "bg-purple-900 text-purple-100",
+    History: "bg-yellow-900 text-yellow-100",
+  }
 
   return (
-    <Card className="mb-4 hover:shadow-md transition-shadow">
+    <Card className="mb-4 hover:shadow-md transition-shadow bg-gray-800 border border-[#14F195]">
       <CardContent className="p-4">
         <a
-          href={`https://example.com/account/${address}`}
+          href={`https://explorer.solana.com/address/${address}?cluster=devnet`}
           className="block"
           target="_blank"
           rel="noopener noreferrer"
         >
           <div className="flex items-center justify-between mb-2">
             <Badge className={`${typeColors[type]} font-medium`}>{type}</Badge>
-            <span className="text-sm font-medium">{amount} POP</span>
+            <span className="text-sm font-medium text-white">🍿 {amount} POP</span>
           </div>
           <div className="flex items-center mb-2">
-            <User className="h-4 w-4 mr-2 text-gray-500" />
-            <p className="text-sm text-gray-600">{address}</p>
+            <User className="h-4 w-4 mr-2 text-[#14F195]" />
+            <p className="text-sm text-gray-300">{address}</p>
           </div>
         </a>
         <div className="flex items-center">
-          <span className="text-xs text-gray-500 mr-2">Sig:</span>
+          <span className="text-xs text-gray-400 mr-2">Sig:</span>
           <a
-            href={`https://example.com/sig/${sig}`}
-            className="text-xs text-blue-600 hover:underline flex items-center"
+            href={`https://explorer.solana.com/tx/${sig}?cluster=devnet`}
+            className="text-xs text-[#14F195] hover:underline flex items-center"
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -349,66 +349,64 @@ const AccountCard: React.FC<AccountCardProps> = ({
         </div>
       </CardContent>
     </Card>
-  );
-};
-
+  )
+}
 interface ReceiptDialogProps {
   receipt: ViewReceipt;
   eatenPOP: number;
   duration: number;
 }
-
 const ReceiptDialog: React.FC<ReceiptDialogProps> = ({
   receipt,
   eatenPOP,
   duration,
 }) => {
   const formatTime = (time: number) => {
-    const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
-  };
+    const minutes = Math.floor(time / 60)
+    const seconds = Math.floor(time % 60)
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`
+  }
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" className="font-medium">
+        <Button variant="outline" className="font-medium text-white">
           View Receipt
         </Button>
       </DialogTrigger>
-      <DialogContent className=" bg-white">
+      <DialogContent className="bg-gray-900 text-white sm:max-w-[90vw] md:max-w-[600px] lg:max-w-[800px]">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-center text-gray-900">
+          <DialogTitle className="text-2xl font-bold text-center text-white">
             Receipt
           </DialogTitle>
         </DialogHeader>
-        <ScrollArea className="h-[500px] pr-4">
+        <ScrollArea className="h-[60vh] pr-4">
           <div className="space-y-6">
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-500 flex items-center gap-2">
+                <span className="text-sm text-gray-200 flex items-center gap-2">
                   <Popcorn className="h-4 w-4" />
                   Popcorn Eaten
                 </span>
-                <span className="font-medium text-gray-900">
-                  {(Number(eatenPOP) / 10 ** 9).toFixed(9)} 🍿
+                <span className="font-medium text-white">
+                  🍿 {(Number(eatenPOP) / 10 ** 9).toFixed(9)} POP
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-500 flex items-center gap-2">
+                <span className="text-sm text-gray-200 flex items-center gap-2">
                   <Clock className="h-4 w-4" />
                   Total Duration
                 </span>
-                <span className="font-medium text-gray-900">
+                <span className="font-medium text-white">
                   {formatTime(duration)}
                 </span>
               </div>
             </div>
 
-            <Separator className="bg-gray-200" />
+            <Separator className="bg-gray-700" />
 
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900">Accounts</h3>
+              <h3 className="text-lg font-semibold text-white">Accounts</h3>
 
               {receipt?.historyOwnerReceipt && (
                 <AccountCard
@@ -456,5 +454,5 @@ const ReceiptDialog: React.FC<ReceiptDialogProps> = ({
         </ScrollArea>
       </DialogContent>
     </Dialog>
-  );
-};
+  )
+}

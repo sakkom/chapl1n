@@ -27,7 +27,7 @@ export default function CreateFilmPage({ params }: { params: { labelPda: string 
   }, [wallet, labelPda]);
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="">
       <ActorsForm labelPda={labelPda} msPda={msPda || null} />
     </div>
   )

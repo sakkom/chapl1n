@@ -16,7 +16,7 @@ interface LabelCreationFormProps {
   wallet: AnchorWallet | null; // walletの型を定義
 }
 
-interface Member {
+export interface Member {
   address: string;
   isValid: boolean;
   name: string;

@@ -48,9 +48,9 @@ export default function Component() {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="text-center md:text-left">
-              <h1 className="text-4xl font-extrabold">Chapl1n</h1>
+              <h1 className="text-4xl font-extrabold">Crews</h1>
               <p className="text-xl font-bold text-[#9945FF] mt-2">
-                Internet theater for independent & subculture
+                Street culture video hub: Connecting youth worldwide
               </p>
             </div>
             <nav>
@@ -81,6 +81,20 @@ export default function Component() {
       </header>
 
       <main className="max-w-6xl mx-auto px-4 md:px-8 py-16 space-y-32">
+        <section id="short-description" className="relative">
+          <div className="absolute -left-4 top-0 w-0.5 h-full bg-gray-200"></div>
+          <h2 className="text-4xl font-extrabold mb-6 flex items-center">
+            <span className="text-[#9945FF] mr-4 text-2xl">❗</span>
+            Short discripion
+          </h2>
+          <h3 className="text-5xl font-extrabold mb-6 text-[#9945FF]">
+            Video works mediated by you
+          </h3>
+          <p className="text-2xl font-bold leading-relaxed text-gray-700">
+
+          </p>
+        </section>
+
         <section id="problem" className="relative">
           <div className="absolute -left-4 top-0 w-0.5 h-full bg-gray-200"></div>
           <h2 className="text-4xl font-extrabold mb-6 flex items-center">

@@ -9,12 +9,12 @@ export default function Page({ params }: { params: { labelPda: string } }) {
   const labelPda = new PublicKey(params.labelPda);
 
   return (
-    <>
+    <div>
       {wallet && (
         <AppLayoutComponent wallet={wallet}>
           {wallet && <LabelPage wallet={wallet} labelPda={labelPda} />}
         </AppLayoutComponent>
       )}
-    </>
+    </div>
   );
 }

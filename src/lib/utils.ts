@@ -8,6 +8,7 @@ import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
 import {  publicKey } from '@metaplex-foundation/umi';
 import Squads, { Wallet } from "@sqds/sdk";
 import { AnchorWallet } from "@solana/wallet-adapter-react";
+import { fetchUser } from "../../anchorClient";
 
 
 export type Flyer = {
@@ -113,4 +114,48 @@ export async function rejectTxUser(
   }
 }
 
-
+export const validateMember = async (address: string, index: number, members: { address: string }[], wallet: AnchorWallet | null) => {
+  if (members.some((member, i) => member.address === address && i !== index)) {
+    return {
+      isValid: false,
+      name: "",
+      pda: "",
+      error: "おなじmemberは一度しか選択できません",
+    };
+  }
+  try {
+    new web3.PublicKey(address);
+  } catch (e) {
+    return {
+      isValid: false,
+      name: "",
+      pda: "",
+      error: "有効なaddressを入力してください",
+    };
+  }
+  try {
+    if (wallet) {
+      const { userAccount, userPda } = await fetchUser(wallet, new web3.PublicKey(address));
+      return {
+        isValid: true,
+        name: userAccount.name,
+        pda: userPda.toString(),
+        error: "",
+      };
+    } else {
+      return {
+        isValid: false,
+        name: "",
+        pda: "",
+        error: "user アカウントがありません",
+      };
+    }
+  } catch (e) {
+    return {
+      isValid: false,
+      name: "",
+      pda: "",
+      error: "user アカウントがありません",
+    };
+  }
+};

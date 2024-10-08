@@ -28,27 +28,25 @@ export function MockCard ({
   const router = useRouter();
   // 256777783 demo bigint
   const beforeAmount = (Number(amount) / 10 ** 9).toFixed(4);
-  const afterAmount = (Number(BigInt(amount) - BigInt(256777783)) / 10 ** 9).toFixed(4);
+  const afterAmount = (Number(BigInt(amount) - BigInt(15000000000)) / 10 ** 9).toFixed(4);
 
   const getTitleContent = (index: number) => {
     if (index === 0) {
       return (
         <>
-          <span className="mr-2">1min | 🍿1POP</span>
+          <span className="mr-2">15sec: 🍿 15 POP </span>
         </>
       );
     } else if (index === 1) {
       return (
         <>
-          <s className="mr-2">1min | 🍿1POP</s>
-          <span>→</span>
-          <span>15s | 🍿0.25POP</span>
+          <span className="mr-2">20min: 🍿 1200 POP</span>
         </>
       );
     } else {
       return (
         <>
-          <span className="mr-2">20min | 🍿20POP</span>
+          <span className="mr-2">25min | 🍿 1500 POP</span>
         </>
       );
     }
@@ -74,7 +72,7 @@ export function MockCard ({
             <img
               src={flyer.image}
               alt={flyer.name}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover aspect-square"
             />
           </CardContent>
         </Card>
@@ -90,7 +88,7 @@ export function MockCard ({
             <Clock className="h-5 w-5 text-white" />
             <span>15 sec</span>
             <Popcorn className="h-5 w-5 text-white" />
-            <span>0.25 POP</span>
+            <span>15 POP</span>
           </div>
           <div className="grid gap-4 p-4 border-2 border-white rounded-lg">
             <div className="flex justify-between items-center">

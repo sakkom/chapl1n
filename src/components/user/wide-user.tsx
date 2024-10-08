@@ -1,4 +1,4 @@
-import { Card, CardContent, } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { FC, useEffect, useState } from "react";
 import { PublicKey } from "@solana/web3.js";
 import { AnchorWallet } from "@solana/wallet-adapter-react";
@@ -27,21 +27,22 @@ export const WideUser: FC<WideUserProps> = ({ authority, wallet }) => {
     <div>
       {user ? (
         <Link href={`/profile/${user.userPda.toString()}`}>
-                <Card className=" hover:bg-slate-800">
-          <CardContent className="flex items-center space-x-4 p-4 ">
-            <Avatar
-              name={user.userAccount.name}
-              colors={["#3fbbb7", "#9945ff", "#14f195", "#5997cd", "#7179e0"]}
-              variant="marble"
-              size={50}
-            />
-            <div>
-              <h2 className="text-lg font-semibold text-white">{user.userAccount.name}</h2>
-            </div>
-          </CardContent>
-        </Card>
+          <Card className=" hover:bg-slate-800">
+            <CardContent className="flex items-center space-x-4 p-4 ">
+              <Avatar
+                name={user.userAccount.name}
+                colors={["#3fbbb7", "#9945ff", "#14f195", "#5997cd", "#7179e0"]}
+                variant="pixel"
+                size={50}
+              />
+              <div>
+                <h2 className="text-lg font-semibold text-white">
+                  {user.userAccount.name}
+                </h2>
+              </div>
+            </CardContent>
+          </Card>
         </Link>
-
       ) : (
         <div>アカウント取得中</div>
       )}

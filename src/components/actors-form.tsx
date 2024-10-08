@@ -241,7 +241,7 @@ export default function Component({ labelPda, msPda }: FilmCreationFormProps) {
                                       "#5997cd",
                                       "#7179e0",
                                     ]}
-                                    variant="marble"
+                                    variant="pixel"
                                     size={50}
                                   />
                                   <div>
@@ -311,7 +311,7 @@ export default function Component({ labelPda, msPda }: FilmCreationFormProps) {
                                       "#5997cd",
                                       "#7179e0",
                                     ]}
-                                    variant="marble"
+                                    variant="pixel"
                                     size={50}
                                   />
                                   <div>

@@ -14,7 +14,7 @@ const VerticalUserCard: FC<{ userAccount: UserSet }> = ({ userAccount }) => {
         <Avatar
           name={userAccount.userAccount.name}
           colors={["#3fbbb7", "#9945ff", "#14f195", "#5997cd", "#7179e0"]}
-          variant="marble"
+          variant="pixel"
           size={80}
         />
         <div className="text-center">

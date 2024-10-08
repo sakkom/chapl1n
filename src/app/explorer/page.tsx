@@ -17,7 +17,7 @@ import { MockCard } from "@/components/mock-card";
 export default function Page() {
   const wallet = useAnchorWallet();
   const mockLabel = new PublicKey(
-    "3z8HU51hadh9zHmfL7VTT6WaaRGJKohqXxUmgFjRoELn"
+    "3mmdbFqt1LcL9zqP78wXx9L9bY8FDcTPSGYwB4L4vFHY"
   );
   const [columnCount, setColumnCount] = useState(2);
   const { clientATAInfo } = useClientPopcorn();

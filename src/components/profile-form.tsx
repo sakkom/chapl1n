@@ -35,7 +35,7 @@ export default function ProfileForm() {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex justify-center">
-        <Avatar name="Helen Keller" colors={["#3fbbb7", "#9945ff", "#14f195", "#5997cd", "#7179e0"]} variant="marble"  size={80}/>
+        <Avatar name="Helen Keller" colors={["#3fbbb7", "#9945ff", "#14f195", "#5997cd", "#7179e0"]} variant="pixel"  size={80}/>
         </div>
         <form className="space-y-2" onSubmit={handleSubmit}>
           <Label htmlFor="name">名前</Label>

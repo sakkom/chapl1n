@@ -55,18 +55,20 @@ export default function Page({ params }: { params: { filmPda: string } }) {
           <div className="mb-4 w-full">
             {filmData && clientATA && wallet && (
               <>
-                            <PopcornVideo
-                videoUri="/Radar.MOV"
-                filmData={filmData}
-                clientATA={clientATA}
-                wallet={wallet}
-                transferType="Normal"
-              />
+                <PopcornVideo
+                  videoUri="/Radar-intoro.mp4"
+                  filmData={filmData}
+                  clientATA={clientATA}
+                  wallet={wallet}
+                  transferType="Normal"
+                  filmPda={filmPda}
+                />
 
-            <TheaterInfo wallet={wallet} collection={filmData.collectionMint} />
+                <TheaterInfo
+                  wallet={wallet}
+                  collection={filmData.collectionMint}
+                />
               </>
-
-
             )}
           </div>
         </AppLayoutComponent>

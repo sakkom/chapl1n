@@ -15,8 +15,9 @@ import {
   CardContent,
   CardTitle,
   CardFooter,
+  CardHeader,
 } from "@/components/ui/card";
-import {  Check, X, Play } from "lucide-react";
+import { Check, X, Play } from "lucide-react";
 import { approveTxUser, fetchFlyer, Flyer, rejectTxUser } from "@/lib/utils";
 import { PublicKey } from "@solana/web3.js";
 import { TransactionAccount } from "@sqds/sdk";
@@ -25,6 +26,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { WideUser } from "./user/wide-user";
 import Link from "next/link";
 import { Separator } from "./ui/separator";
+import { MockCard } from "./mock-card";
+import { useClientPopcorn } from "@/ClientPopcornContext";
 
 enum TxStatus {
   Active = "active",
@@ -231,13 +234,11 @@ function TransactionModal({
               )}
             </CardContent>
           </Card>
-          
         ) : (
           <p className="text-center text-gray-500 text-sm">
             No decoded data available
           </p>
         )}
-
 
         {member.includes(wallet.publicKey.toString()) && (
           <ActionButtons
@@ -262,6 +263,8 @@ export default function MsTransactions({
   const [openModalIndex, setOpenModalIndex] = useState<number | null>(null);
   const [published, setPublished] = useState<MsFilm[]>([]);
   const [unPublished, setUnPublished] = useState<MsFilm[]>([]);
+  const { clientATAInfo } = useClientPopcorn();
+  const [activeTab, setActiveTab] = useState("inner2");
 
   useEffect(() => {
     async function fetchData() {
@@ -352,36 +355,59 @@ export default function MsTransactions({
     const data = await executeTxNode(txPda);
     const newTxState = data.txState as TransactionAccount;
     updateTxState(txPda, newTxState);
+
+    // 実行後、publishedリストを更新
+    setPublished(prev => [...prev, unPublished.find(film => film.decodedDatas.txPda === txPda)!]);
+    setUnPublished(prev => prev.filter(film => film.decodedDatas.txPda !== txPda));
+
+    // publishedタブに切り替え
+    setActiveTab("inner1");
   };
 
   return (
     <div>
       {wallet && (
-        <Tabs defaultValue="inner1" className="w-full mt-4">
-          <TabsList className="w-full flex justify-center bg-transparent">
-            <TabsTrigger
-              value="inner1"
-              className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-            >
-              Published
-            </TabsTrigger>
-            <TabsTrigger
-              value="inner2"
-              className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-            >
-              UnPublished
-            </TabsTrigger>
-          </TabsList>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mt-4">
+            <TabsList className="w-full flex justify-between items-center bg-transparent">
+              <div className="flex">
+                <TabsTrigger
+                  value="inner1"
+                  className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                >
+                  Published
+                </TabsTrigger>
+                <TabsTrigger
+                  value="inner2"
+                  className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                >
+                  UnPublished
+                </TabsTrigger>
+              </div>
+              {member.includes(wallet.publicKey.toString()) && (
+                <div>
+                  <Link href={`/label/new-film/${labelPda}`}>
+                    <Button>+</Button>
+                  </Link>
+                </div>
+              )}
+            </TabsList>
+
           <TabsContent value="inner1" className="mt-4">
             {published.length > 0 && (
               <div className="space-y-4">
                 {published.map((msFilm, index) => (
                   <div className="" key={index}>
                     {msFilm.flyer && (
-                      <img
-                        src={msFilm.flyer.image}
-                        alt={msFilm.flyer.name}
-                        className=" object-cover"
+                      // <img
+                      //   src={msFilm.flyer.image}
+                      //   alt={msFilm.flyer.name}
+                      //   className=" object-cover"
+                      // />
+                      <MockCard
+                        key={index}
+                        flyer={msFilm.flyer}
+                        index={index}
+                        amount={Number(clientATAInfo?.amount) || Number(0)}
                       />
                     )}
                   </div>
@@ -390,15 +416,6 @@ export default function MsTransactions({
             )}
           </TabsContent>
           <TabsContent value="inner2" className="mt-4">
-            <div>
-              {member.includes(wallet.publicKey.toString()) && (
-                <div>
-                  <Link href={`/label/new-film/${labelPda}`}>
-                    <Button>+ new video work</Button>
-                  </Link>
-                </div>
-              )}
-            </div>
             {unPublished.length > 0 && (
               <div className="space-y-4">
                 {unPublished.map((msFilm, index) => {
@@ -406,64 +423,68 @@ export default function MsTransactions({
                     ([value]) => value
                   )?.[0] as TxStatus;
                   return (
-                    <Card
-                      key={index}
-                      className="bg-gray-800 hover:bg-gray-700 transition-colors duration-200"
-                    >
-                      <CardContent className="p-4">
-                        <div className="">
-                          <Dialog
-                            open={openModalIndex === index}
-                            onOpenChange={(isOpen) =>
-                              setOpenModalIndex(isOpen ? index : null)
-                            }
-                          >
-                            <DialogTrigger asChild>
-                              <div className="flex flex-col">
-                                <Badge
-                                  variant={
-                                    status === TxStatus.Active
-                                      ? "default"
-                                      : status === TxStatus.ExecuteReady
-                                      ? "outline"
-                                      : "secondary"
-                                  }
-                                  className="h-6"
-                                >
-                                  {status === TxStatus.Active
-                                    ? "Active"
-                                    : status === TxStatus.ExecuteReady
-                                    ? "Ready"
-                                    : "Executed"}
-                                </Badge>
-                                {msFilm.flyer && (
+                    <div key={index}>
+                      <Dialog
+                        open={openModalIndex === index}
+                        onOpenChange={(isOpen) =>
+                          setOpenModalIndex(isOpen ? index : null)
+                        }
+                      >
+                        <DialogTrigger asChild>
+                          <div className="flex flex-col">
+                            {msFilm.flyer && (
+                              <Card
+                                key={msFilm.flyer.filmPda.toString()}
+                                className="overflow-hidden shadow-lg mb-4 mx-1 cursor-pointer transition-transform duration-200 hover:scale-105 bg-black text-white"
+                              >
+                                <CardHeader className="p-2 bg-gray-900">
+                                  <CardTitle className="text-xs sm:text-sm font-bold flex items-center text-white space-x-2">
+                                    <Badge
+                                      variant={
+                                        status === TxStatus.Active
+                                          ? "default"
+                                          : status === TxStatus.ExecuteReady
+                                          ? "outline"
+                                          : "secondary"
+                                      }
+                                      className="h-6"
+                                    >
+                                      {status === TxStatus.Active
+                                        ? "Active"
+                                        : status === TxStatus.ExecuteReady
+                                        ? "Ready"
+                                        : "Executed"}
+                                    </Badge>
+                                  </CardTitle>
+                                </CardHeader>
+                                <CardContent className="p-2">
                                   <img
                                     src={msFilm.flyer.image}
                                     alt={msFilm.flyer.name}
-                                    className=" object-cover"
+                                    className="w-full h-full object-cover"
                                   />
-                                )}
-                              </div>
-                            </DialogTrigger>
-                            <TransactionModal
-                              msFilm={msFilm}
-                              wallet={wallet}
-                              threshold={threshold}
-                              member={member}
-                              onApprove={() =>
-                                handleApprove(msFilm.decodedDatas.txPda)
-                              }
-                              onReject={() =>
-                                handleReject(msFilm.decodedDatas.txPda)
-                              }
-                              onExecute={() =>
-                                handleExecute(msFilm.decodedDatas.txPda)
-                              }
-                            />
-                          </Dialog>
-                        </div>
-                      </CardContent>
-                    </Card>
+                                </CardContent>
+                              </Card>
+                            )}
+                          </div>
+                        </DialogTrigger>
+                        <TransactionModal
+                          msFilm={msFilm}
+                          wallet={wallet}
+                          threshold={threshold}
+                          member={member}
+                          onApprove={() =>
+                            handleApprove(msFilm.decodedDatas.txPda)
+                          }
+                          onReject={() =>
+                            handleReject(msFilm.decodedDatas.txPda)
+                          }
+                          onExecute={() =>
+                            handleExecute(msFilm.decodedDatas.txPda)
+                          }
+                        />
+                      </Dialog>
+                    </div>
                   );
                 })}
               </div>

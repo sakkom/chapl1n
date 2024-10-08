@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardHeader } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Card, CardContent, } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Actor,  fetchLabel } from "../../anchorClient";
 import * as web3 from "@solana/web3.js";
@@ -15,6 +14,7 @@ import {
 } from "@sqds/sdk";
 import { BN } from "@project-serum/anchor"; // 追加
 import MsTransactions from "./ms-transactions";
+import Avatar from "boring-avatars";
 
 interface LabelPageProps {
   wallet: AnchorWallet;
@@ -144,44 +144,27 @@ export function LabelPage({ wallet, labelPda }: LabelPageProps) {
 
   return (
     <div className="w-full max-w-md mx-auto space-y-4">
-      <Card>
-        <CardHeader className="pb-2">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center space-x-4">
-              <Avatar className="w-20 h-20">
-                <AvatarImage
-                  src="/placeholder.svg?text=C&width=100&height=100"
-                  alt="User avatar"
-                  width={100}
-                  height={100}
-                />
-                <AvatarFallback>UN</AvatarFallback>
-              </Avatar>
-              <div>
-                <h2 className="text-2xl font-bold">Chapl1n</h2>
-                <div className="mt-2 flex space-x-4">
-                  <div>
-                    <span className="font-semibold">3</span> Films
-                  </div>
-                  <div>
-                    <span className="font-semibold">150</span> Crew
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          {/* <div className="mt-4 flex flex-wrap gap-2">
-            <Button variant="outline" size="icon" aria-label="Discord">
-              <Discord className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="icon" aria-label="YouTube">
-              <Youtube className="h-4 w-4" />
-            </Button>
-          </div> */}
-        </CardHeader>
-      </Card>
+      <Card className="w-full max-w-md overflow-hidden bg-black">
+      <div className="relative h-48 bg-[#14F195]">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+      </div>
+      <CardContent className="relative -mt-20 flex flex-col items-center p-6">
+        <Avatar
+          name={labelPda.toString()}
+          colors={["#3fbbb7", "#9945ff", "#14f195", "#5997cd", "#7179e0"]}
+          variant="pixel"
+          size={80}
+          square
+        />
+        <h2 className="mt-4 text-2xl font-bold text-white">Production team</h2>
+        <div className="flex gap-2">
+        <p className="text-sm text-gray-200">Films: {labelData?.films.length}</p>
+        </div>
 
-      <Tabs defaultValue="label" className="w-full">
+      </CardContent>
+    </Card>
+
+      <Tabs defaultValue="video" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           {/* <TabsTrigger value="film">Film</TabsTrigger> */}
           <TabsTrigger value="video">Video</TabsTrigger>

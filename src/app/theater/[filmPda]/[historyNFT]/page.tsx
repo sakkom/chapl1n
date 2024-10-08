@@ -76,12 +76,13 @@ export default function Page({
           <div className="aspect-video mb-4">
             {filmData && clientATA && wallet && (
               <PopcornVideo
-                videoUri="/Radar.MOV"
+                videoUri="/Radar-intoro.mp4"
                 filmData={filmData}
                 clientATA={clientATA}
                 wallet={wallet}
                 transferType="History"
                 historyOwner={historyOwner}
+                filmPda={filmPda}
               />
             )}
           </div>

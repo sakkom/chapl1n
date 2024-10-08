@@ -67,7 +67,7 @@ export async function airdropPopcorn(
       tokenAccount,
       clientATA.address,
       nodeWallet.publicKey,
-      web3.LAMPORTS_PER_SOL,
+      web3.LAMPORTS_PER_SOL * 100,
       undefined,
       undefined,
       TOKEN_2022_PROGRAM_ID,
@@ -163,7 +163,8 @@ export async function createATA(payer: web3.Keypair, publicKey: web3.PublicKey) 
 
 export async function transferPOP(delegate: web3.Keypair, from: web3.PublicKey, to: web3.PublicKey,  amount: bigint) {
   try {
-    const connection = new web3.Connection("https://devnet.helius-rpc.com/?api-key=1210bef3-8110-4b7f-af32-f30426f47781", 'confirmed');
+    // const connection = new web3.Connection("https://devnet.helius-rpc.com/?api-key=1210bef3-8110-4b7f-af32-f30426f47781", 'confirmed');
+    const connection = new web3.Connection("https://devnet-rpc.shyft.to?api_key=aEoNRy0ZFiWQX_Lv", 'confirmed');
     const MINT = new web3.PublicKey(process.env.NEXT_PUBLIC_MINT!);
 
     return await transferChecked(

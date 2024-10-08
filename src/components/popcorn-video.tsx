@@ -15,7 +15,7 @@ import {
 import { fetchLabel, fetchUser, Film, UserProfile } from "../../anchorClient";
 import { postHisotyNFT, postSettlement } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink, User, Popcorn, Clock, History } from "lucide-react";
+import { ExternalLink, Popcorn, Clock, History } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import LoadingPop from "@/components/loading-pop";
@@ -23,10 +23,11 @@ import Link from "next/link";
 import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
 import { dasApi } from "@metaplex-foundation/digital-asset-standard-api";
 import { publicKey } from "@metaplex-foundation/umi";
-import { CollectionSearchResult } from "./user-page";
 import { useQuery } from "@tanstack/react-query";
 import { useClientPopcorn } from "@/ClientPopcornContext";
-
+import { WideUser } from "./user/wide-user";
+import Avatar from "boring-avatars";
+import { fetchFlyer, Flyer } from "@/lib/utils";
 
 type ViewReceipt = {
   creatorsReceipt: [{ sig: string; address: string; amount: string }];
@@ -42,6 +43,7 @@ interface PopcornVideoProps {
   wallet: AnchorWallet;
   transferType: "Normal" | "History";
   historyOwner?: PublicKey;
+  filmPda: PublicKey;
 }
 
 export default function PopcornVideo({
@@ -51,6 +53,7 @@ export default function PopcornVideo({
   wallet,
   transferType,
   historyOwner,
+  filmPda,
 }: PopcornVideoProps) {
   const [eatenPOP, setEatenPOP] = useState<number>(0);
   const [displayTokens, setDisplayTokens] = useState<number>(0);
@@ -59,17 +62,19 @@ export default function PopcornVideo({
   const [isVideoEnded, setIsVideoEnded] = useState(false);
   const [receipt, setReceipt] = useState<ViewReceipt>();
   const [isLoading, setIsLoading] = useState(false);
-  // const [tree, setTree] = useState<PublicKey>();
-  const [haveHistory, setHaveHistory] = useState<boolean>();
+  const [haveHistory, setHaveHistory] = useState<boolean>(false);
   const [historyOwnerAccount, setHistoryOwnerAccount] = useState<{
     userProfile: UserProfile;
     userPda: PublicKey;
   }>();
-  const {refetchClientATAInfo} = useClientPopcorn()
+  const [flyer, setFlyer] = useState<Flyer>();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isMinted, setIsMinted] = useState(false);
+  const { refetchClientATAInfo } = useClientPopcorn();
 
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  const { data: tree  } = useQuery({
+  const { data: tree } = useQuery({
     queryKey: ["tree", wallet, filmData?.label],
     queryFn: async () => {
       if (!wallet || !filmData?.label) throw new Error("Missing dependencies");
@@ -78,7 +83,6 @@ export default function PopcornVideo({
     },
     enabled: !!wallet && !!filmData?.label,
   });
-
 
   useEffect(() => {
     async function getUserProfilePda() {
@@ -94,6 +98,15 @@ export default function PopcornVideo({
   }, [historyOwner, wallet]);
 
   useEffect(() => {
+    async function fetchFlyerData() {
+      const flyer = await fetchFlyer(filmData.collectionMint, filmPda);
+      setFlyer(flyer as Flyer);
+    }
+
+    fetchFlyerData();
+  }, [filmData.collectionMint, filmPda]);
+
+  useEffect(() => {
     const umi = createUmi(
       "https://devnet.helius-rpc.com/?api-key=1210bef3-8110-4b7f-af32-f30426f47781"
     ).use(dasApi());
@@ -103,7 +116,7 @@ export default function PopcornVideo({
           searchAssets: (params: {
             owner: string;
             grouping: string[];
-          }) => Promise<CollectionSearchResult>;
+          }) => Promise<{ items: unknown[] }>;
         }
       ).searchAssets({
         owner: publicKey(wallet.publicKey),
@@ -127,9 +140,8 @@ export default function PopcornVideo({
 
     const updateProgress = () => {
       const currentTime = video.currentTime;
-      const eatenAmount = currentTime / 60;
-      const tokens = Math.floor(eatenAmount * 10 ** 9);
-      const displayTokens = parseFloat((tokens / 10 ** 9).toFixed(3));
+      const tokens = Math.floor(currentTime * 10 ** 9);
+      const displayTokens = parseFloat((tokens / 10 ** 9).toFixed(2));
       setEatenPOP(tokens);
       setDisplayTokens(displayTokens);
       return tokens;
@@ -194,7 +206,14 @@ export default function PopcornVideo({
         video.removeEventListener("ended", handleVideoEnd);
       };
     }
-  }, [clientATA, filmData, haveHistory]);
+  }, [
+    clientATA,
+    filmData,
+    haveHistory,
+    historyOwner,
+    transferType,
+    refetchClientATAInfo,
+  ]);
 
   const togglePlay = () => {
     const video = videoRef.current;
@@ -207,21 +226,22 @@ export default function PopcornVideo({
     setIsPlaying(!isPlaying);
   };
 
-  // const formatTime = (time: number) => {
-  //   const minutes = Math.floor(time / 60);
-  //   const seconds = Math.floor(time % 60);
-  //   return `${minutes}:${seconds.toString().padStart(2, "0")}`;
-  // };
-
   const handleMint = async () => {
+    setIsLoading(true);
     try {
       await postHisotyNFT(
         wallet.publicKey.toString(),
         filmData?.collectionMint.toString() || "",
         tree?.toString() || ""
       );
+      setIsDialogOpen(false);
+      setIsMinted(true);
+      setHaveHistory(true);
     } catch (e) {
       console.error(e);
+      // You might want to show an error message to the user here
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -229,14 +249,38 @@ export default function PopcornVideo({
     <div className="w-full xs:p-10">
       {transferType === "History" && historyOwnerAccount && (
         <Link href={`/profile/${historyOwnerAccount.userPda.toString()}`}>
-          <div className="flex">
-            <History />
-            <p>{historyOwnerAccount?.userProfile?.name || "Unknown"}</p>
+          <div className="flex gap-2">
+          <History className="text-[#14F195]" />
+          <p>Resource</p>
           </div>
+
+          <Card className="bg-black transition-all duration-300 ease-in-out hover:bg-gray-900 hover:shadow-md">
+            <CardContent className="flex items-center justify-between p-4">
+              <div className="flex items-center space-x-4">
+                <Avatar
+                  name={historyOwnerAccount.userProfile.name}
+                  colors={[
+                    "#3fbbb7",
+                    "#9945ff",
+                    "#14f195",
+                    "#5997cd",
+                    "#7179e0",
+                  ]}
+                  variant="pixel"
+                  size={50}
+                />
+                <div>
+                  <h2 className="text-lg font-semibold text-white">
+                    {historyOwnerAccount.userProfile.name}
+                  </h2>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </Link>
       )}
 
-      <Card className="w-full  mx-auto overflow-hidden bg-white text-black shadow-lg rounded-t-none">
+      <Card className="w-full mx-auto overflow-hidden bg-black text-white shadow-lg rounded-t-none border border-[#14F195]">
         <div className="relative">
           <video
             ref={videoRef}
@@ -261,33 +305,85 @@ export default function PopcornVideo({
                 receipt={receipt}
                 eatenPOP={eatenPOP}
                 duration={duration}
+                wallet={wallet}
+                labelPda={filmData.label}
               />
             ) : haveHistory ? (
               <div className="flex items-center">
-                <h3 className="text-lg font-semibold mr-2">Owned History:</h3>
-                <span className="text-3xl font-bold">🍿</span>
+                <h3 className="text-lg font-semibold mr-2 text-[#14F195]">
+                  Owned
+                </h3>
               </div>
             ) : (
               <div className="flex items-center">
-                <h3 className="text-lg font-semibold mr-2">Eaten:</h3>
-                <span className="text-3xl font-bold">{displayTokens} 🍿</span>
+                <h3 className="text-lg font-semibold mr-2 text-[#14F195]">
+                  Eaten:
+                </h3>
+                <span className="text-3xl font-bold text-white">
+                  {displayTokens} 🍿
+                </span>
               </div>
             )}
-            {!haveHistory && (
-              <Dialog>
-              <DialogTrigger asChild>
-                <Button disabled={!isVideoEnded}>
-                  mint
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Mint Confirmation</DialogTitle>
-                </DialogHeader>
-                <p>Are you sure you want to mint this NFT?</p>
-                <Button onClick={handleMint}>Confirm</Button>
-              </DialogContent>
-            </Dialog>
+            {!haveHistory && !isMinted && (
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button
+                    disabled={!isVideoEnded}
+                    className="bg-[#14F195] text-black hover:bg-[#0fd17e] transition-colors duration-200"
+                  >
+                    Mint
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="bg-black text-white border border-[#14F195]">
+                  <DialogHeader>
+                    <DialogTitle className="text-2xl font-bold text-center mb-4 text-[#14F195]">
+                      Mint Confirmation
+                    </DialogTitle>
+                  </DialogHeader>
+                  <div className="flex flex-col items-center space-y-4">
+                    <div className="relative w-full aspect-square overflow-hidden rounded-lg border-2 border-[#14F195]">
+                      <img
+                        src={flyer?.image}
+                        alt="NFT Preview"
+                        className="object-cover w-full h-full"
+                      />
+                    </div>
+                    <p className="text-center text-lg">
+                      Are you sure you want to mint this NFT?
+                    </p>
+                    <div className="flex space-x-4 w-full">
+                      <Button
+                        onClick={() => setIsDialogOpen(false)}
+                        variant="outline"
+                        className="flex-1 bg-transparent text-[#14F195] border-[#14F195] hover:bg-[#14F195] hover:text-black transition-colors duration-200"
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={handleMint}
+                        className={`
+                          flex-1 bg-[#14F195] text-black font-semibold
+                          hover:bg-[#0fd17e]
+                          focus:ring-2 focus:ring-[#14F195] focus:ring-offset-2 focus:ring-offset-black
+                          transition-all duration-200 ease-in-out
+                          ${isLoading ? "opacity-50 cursor-not-allowed" : ""}
+                        `}
+                        disabled={isLoading}
+                      >
+                        {isLoading ? "Minting..." : "Confirm Mint"}
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            )}
+            {isMinted && (
+              <Button
+                disabled
+                className="bg-[#14F195] text-black opacity-50 cursor-not-allowed"
+              >
+                Minted
+              </Button>
             )}
           </div>
           {isLoading && <LoadingPop />}
@@ -298,10 +394,12 @@ export default function PopcornVideo({
 }
 
 interface AccountCardProps {
-  type: "Label" | "Creator" | "Co-Creator" | "History";
+  type: "Crew" | "Creator" | "Co-Creator" | "History";
   address: string;
   amount: string;
   sig: string;
+  wallet?: AnchorWallet;
+  labelPda?: PublicKey;
 }
 
 const AccountCard: React.FC<AccountCardProps> = ({
@@ -309,13 +407,15 @@ const AccountCard: React.FC<AccountCardProps> = ({
   address,
   amount,
   sig,
+  wallet,
+  labelPda,
 }) => {
   const typeColors = {
-    Label: "bg-blue-900 text-blue-100",
+    Crew: "bg-blue-900 text-blue-100",
     Creator: "bg-green-900 text-green-100",
     "Co-Creator": "bg-purple-900 text-purple-100",
     History: "bg-yellow-900 text-yellow-100",
-  }
+  };
 
   return (
     <Card className="mb-4 hover:shadow-md transition-shadow bg-gray-800 border border-[#14F195]">
@@ -328,12 +428,45 @@ const AccountCard: React.FC<AccountCardProps> = ({
         >
           <div className="flex items-center justify-between mb-2">
             <Badge className={`${typeColors[type]} font-medium`}>{type}</Badge>
-            <span className="text-sm font-medium text-white">🍿 {amount} POP</span>
+            <span className="text-sm font-medium text-white">
+              🍿 {amount} POP
+            </span>
           </div>
-          <div className="flex items-center mb-2">
+          {/* <div className="flex items-center mb-2">
             <User className="h-4 w-4 mr-2 text-[#14F195]" />
             <p className="text-sm text-gray-300">{address}</p>
-          </div>
+          </div> */}
+          {wallet && (
+            <WideUser wallet={wallet} authority={new PublicKey(address)} />
+          )}
+          {type === "Crew" && labelPda && (
+            <>
+              <Link href={`/label/${labelPda.toString()}`}>
+                <Card className=" hover:bg-slate-800">
+                  <CardContent className="flex items-center space-x-4 p-4 ">
+                    <Avatar
+                      name={type}
+                      colors={[
+                        "#3fbbb7",
+                        "#9945ff",
+                        "#14f195",
+                        "#5997cd",
+                        "#7179e0",
+                      ]}
+                      variant="pixel"
+                      size={50}
+                      square
+                    />
+                    <div>
+                      <h2 className="text-lg font-semibold text-white">
+                        Production Team
+                      </h2>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            </>
+          )}
         </a>
         <div className="flex items-center">
           <span className="text-xs text-gray-400 mr-2">Sig:</span>
@@ -349,28 +482,28 @@ const AccountCard: React.FC<AccountCardProps> = ({
         </div>
       </CardContent>
     </Card>
-  )
-}
+  );
+};
 interface ReceiptDialogProps {
   receipt: ViewReceipt;
   eatenPOP: number;
   duration: number;
+  wallet: AnchorWallet;
+  labelPda: PublicKey;
 }
 const ReceiptDialog: React.FC<ReceiptDialogProps> = ({
   receipt,
   eatenPOP,
-  duration,
+  wallet,
+  labelPda,
 }) => {
-  const formatTime = (time: number) => {
-    const minutes = Math.floor(time / 60)
-    const seconds = Math.floor(time % 60)
-    return `${minutes}:${seconds.toString().padStart(2, "0")}`
-  }
-
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" className="font-medium text-white">
+        <Button
+          variant="outline"
+          className="font-medium text-white border-[#14F195] hover:bg-[#14F195] hover:text-black transition-colors duration-200"
+        >
           View Receipt
         </Button>
       </DialogTrigger>
@@ -389,7 +522,7 @@ const ReceiptDialog: React.FC<ReceiptDialogProps> = ({
                   Popcorn Eaten
                 </span>
                 <span className="font-medium text-white">
-                  🍿 {(Number(eatenPOP) / 10 ** 9).toFixed(9)} POP
+                  🍿 {(Number(eatenPOP) / 10 ** 9).toFixed(2)} POP
                 </span>
               </div>
               <div className="flex justify-between items-center">
@@ -397,9 +530,7 @@ const ReceiptDialog: React.FC<ReceiptDialogProps> = ({
                   <Clock className="h-4 w-4" />
                   Total Duration
                 </span>
-                <span className="font-medium text-white">
-                  {formatTime(duration)}
-                </span>
+                <span className="font-medium text-white">15 sec</span>
               </div>
             </div>
 
@@ -415,19 +546,22 @@ const ReceiptDialog: React.FC<ReceiptDialogProps> = ({
                   amount={(
                     Number(receipt.historyOwnerReceipt.amount) /
                     10 ** 9
-                  ).toFixed(9)}
+                  ).toFixed(2)}
                   sig={receipt.historyOwnerReceipt.sig}
+                  wallet={wallet}
                 />
               )}
 
               <AccountCard
-                type="Label"
+                type="Crew"
                 address={receipt.treasuryReceipt.address}
                 amount={(
                   Number(receipt.treasuryReceipt.amount) /
                   10 ** 9
-                ).toFixed(9)}
+                ).toFixed(2)}
                 sig={receipt.treasuryReceipt.sig}
+                // wallet={wallet}
+                labelPda={labelPda}
               />
 
               {receipt.creatorsReceipt.map((creator, index) => (
@@ -435,8 +569,9 @@ const ReceiptDialog: React.FC<ReceiptDialogProps> = ({
                   key={index}
                   type="Creator"
                   address={creator.address}
-                  amount={(Number(creator.amount) / 10 ** 9).toFixed(9)}
+                  amount={(Number(creator.amount) / 10 ** 9).toFixed(2)}
                   sig={creator.sig}
+                  wallet={wallet}
                 />
               ))}
 
@@ -445,8 +580,9 @@ const ReceiptDialog: React.FC<ReceiptDialogProps> = ({
                   key={index}
                   type="Co-Creator"
                   address={coCreator.address}
-                  amount={(Number(coCreator.amount) / 10 ** 9).toFixed(9)}
+                  amount={(Number(coCreator.amount) / 10 ** 9).toFixed(2)}
                   sig={coCreator.sig}
+                  wallet={wallet}
                 />
               ))}
             </div>
@@ -454,5 +590,5 @@ const ReceiptDialog: React.FC<ReceiptDialogProps> = ({
         </ScrollArea>
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};
